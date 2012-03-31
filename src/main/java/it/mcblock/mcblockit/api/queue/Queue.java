@@ -15,7 +15,7 @@ public class Queue extends PriorityQueue<QueueItem> {
     private static final long serialVersionUID = 1L;
     private final File banQueue;
     private final File unbanQueue;
-    private final Gson gson;
+    public final Gson gson;
 
     public Queue(File dataFolder) {
         this.gson = new Gson();

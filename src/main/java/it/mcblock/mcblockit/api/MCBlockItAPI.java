@@ -1,9 +1,6 @@
 package it.mcblock.mcblockit.api;
 
-import it.mcblock.mcblockit.api.queue.BanItem;
-import it.mcblock.mcblockit.api.queue.Queue;
-import it.mcblock.mcblockit.api.queue.QueueItem;
-import it.mcblock.mcblockit.api.queue.UnbanItem;
+import it.mcblock.mcblockit.api.queue.*;
 import it.mcblock.mcblockit.api.userdata.UserData;
 
 import java.io.*;
@@ -309,7 +306,14 @@ public abstract class MCBlockItAPI implements Runnable {
             return false;
         }
 
-        //TODO Process reply
+        if(response.length()>11){
+            APIReply reply=queue.gson.fromJson(response.toString(), APIReply.class);
+            if(reply.success()){
+                return true;
+            } 
+            System.out.println("[MCBlockIt] Received API reply ID "+reply.getStatus()+": "+reply.getError());
+            return false;
+        }
         return false;
     }
 
