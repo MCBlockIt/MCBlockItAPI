@@ -4,7 +4,7 @@
     <groupId>it.mcblock.api</groupId>
     <artifactId>MCBlockItAPI</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>mcBLOCKITAPI ${version}</name>
+    <name>MCBlockItAPI ${version}</name>
     <url>http://www.mcblock.it/</url>
     <description>The premier minecraft global banning solution</description>
 
@@ -13,9 +13,9 @@
     </properties>
 
     <scm>
-        <developerConnection>scm:git:git@github.com:mcBLOCKIT/mcBLOCKIT.git</developerConnection>
-        <connection>scm:git:git://github.com/mcBLOCKIT/mcBLOCKIT.git</connection>
-        <url>https://github.com/mcBLOCKIT/mcBLOCKIT</url>
+        <developerConnection>scm:git:git@github.com:MCBlockIt/mcBLOCKIT.git</developerConnection>
+        <connection>scm:git:git://github.com/MCBlockIt/mcBLOCKIT.git</connection>
+        <url>https://github.com/mcBLOCKIT/MCBlockIt</url>
     </scm>
     
     <dependencies>
