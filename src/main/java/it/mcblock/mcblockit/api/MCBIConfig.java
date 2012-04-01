@@ -18,6 +18,14 @@ public interface MCBIConfig {
     public int getBanRestriction();
 
     /**
+     * Get the cache timeout in minutes.
+     * Minimum value of 5 accepted by the API
+     * 
+     * @return the cache timeout value
+     */
+    public int getCacheTimeout();
+
+    /**
      * Get the flags blocked from the server.
      * If enabled, users with any of these flags will be blocked.
      * 

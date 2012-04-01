@@ -2,12 +2,14 @@ package it.mcblock.mcblockit.api;
 
 import it.mcblock.mcblockit.api.queue.*;
 import it.mcblock.mcblockit.api.userdata.UserData;
+import it.mcblock.mcblockit.api.userdata.UserDataCache;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -110,17 +112,6 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     /**
-     * Retrieve fresh user data.
-     * 
-     * @param username
-     *            Username to search.
-     * @return A freshly acquired UserData.
-     */
-    public static UserData getUserDataFresh(String username) {
-        return MCBlockItAPI.instance().getFreshUserDataInstance(username);
-    }
-
-    /**
      * Start a created instance
      * 
      * @param api
@@ -185,11 +176,13 @@ public abstract class MCBlockItAPI implements Runnable {
     private final String userdataURL = this.URL + "userdata/";
 
     private final Gson gsonCompact;
+    private final UserDataCache cache;
 
     public MCBlockItAPI(String APIKey, File dataFolder) {
         this.APIKey = APIKey;
         this.players = new ArrayList<MCBIPlayer>();
         this.queue = new Queue(dataFolder);
+        this.cache = new UserDataCache(dataFolder);
         this.gsonCompact = new Gson();
     }
 
@@ -242,8 +235,18 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     private UserData getUserDataInstance(String username) {
-        // TODO if(cached){return cached}
-        return this.getFreshUserDataInstance(username);
+        final long lastMod = this.cache.lastMod(username);
+        if ((lastMod != 0) && ((lastMod + (this.getConfig().getCacheTimeout() * 60000)) > (new Date()).getTime())) {
+            final UserData data = this.cache.getUserData(username);
+            if (data != null) {
+                return data;
+            }
+        } else if (lastMod != 0) {
+            this.cache.delUserCache(username);
+        }
+        final UserData data = this.getFreshUserDataInstance(username);
+        this.cache.addUserData(data);
+        return data;
     }
 
     private boolean joinCheck(MCBIPlayer player) {
@@ -306,12 +309,12 @@ public abstract class MCBlockItAPI implements Runnable {
             return false;
         }
 
-        if(response.length()>11){
-            APIReply reply=queue.gson.fromJson(response.toString(), APIReply.class);
-            if(reply.success()){
+        if (response.length() > 11) {
+            final APIReply reply = this.queue.gson.fromJson(response.toString(), APIReply.class);
+            if (reply.success()) {
                 return true;
-            } 
-            System.out.println("[MCBlockIt] Received API reply ID "+reply.getStatus()+": "+reply.getError());
+            }
+            System.out.println("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
             return false;
         }
         return false;
