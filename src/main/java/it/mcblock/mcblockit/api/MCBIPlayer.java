@@ -28,4 +28,13 @@ public interface MCBIPlayer {
      *            Message to display to the player
      */
     public void kick(String reason);
+
+    /**
+     * Message the user if they are an admin
+     * Done this way to allow for sync'd permission checking
+     * 
+     * @param message
+     *            The messages to send
+     */
+    public void messageIfAdmin(String message);
 }

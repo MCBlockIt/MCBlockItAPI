@@ -167,6 +167,7 @@ public abstract class MCBlockItAPI implements Runnable {
     private final ArrayList<MCBIPlayer> players;
 
     private final Queue queue;
+    private long queueStallUntil=0;
 
     private final String APIKey;
 
@@ -198,10 +199,13 @@ public abstract class MCBlockItAPI implements Runnable {
         try {
             QueueItem item;
             while (true) {
-                item = this.queue.peek();
-                if (item != null) {
-                    if (this.process(item)) {
-                        this.queue.remove(item);
+                long time=(new Date()).getTime();
+                if(time>this.queueStallUntil){
+                    item = this.queue.peek();
+                    if (item != null) {
+                        if (this.process(item)) {
+                            this.queue.remove(item);
+                        }
                     }
                 }
                 Thread.sleep(1000);
@@ -314,10 +318,39 @@ public abstract class MCBlockItAPI implements Runnable {
             if (reply.success()) {
                 return true;
             }
+            long timeNow=(new Date()).getTime();
+            if(reply.getStatus()==1){//Rate limiting
+                this.queueStallUntil=timeNow+60000;//Minute delay
+                return false;
+            }
             System.out.println("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
+            if(reply.getStatus()==2){
+                this.queueStallUntil=timeNow+1800000;//30 minute delay
+                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Maintenance!");
+                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Bans will not update on site for at least 30 mins.");
+                System.out.println("[MCBlockIt] delaying queue by 30 minutes for maintenance");
+            } else if(reply.getStatus()==3){//Barred? TODO
+                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Maintenance!");
+                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Bans will not update instantly on site.");
+            } else if(reply.getStatus()==4){//Invalid syntax
+                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Error! Ask MCBlockIt staff for help.");
+                return true;//I guess?
+            } else if(reply.getStatus()==5){//Invalid key
+                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Shutting down. Invalid API.");
+                this.shutdown();
+                stop();
+            }
             return false;
         }
         return false;
+    }
+    
+    protected abstract void shutdown();
+
+    private void messageAdmins(String message){
+        for(MCBIPlayer player:getPlayers()){
+            player.messageIfAdmin(message);
+        }
     }
 
     /**
