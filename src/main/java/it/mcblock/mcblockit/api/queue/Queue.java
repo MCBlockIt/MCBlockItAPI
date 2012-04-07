@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.PriorityQueue;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * API sending queue
@@ -62,10 +63,11 @@ public class Queue extends PriorityQueue<QueueItem> {
                     if (line.length() < 10) {
                         continue;
                     }
-                    QueueItem item = null;
-                    item = (QueueItem) this.gson.fromJson(line, clazz);
-                    super.add(item);
-
+                    try{
+                        super.add((QueueItem) this.gson.fromJson(line, clazz));
+                    } catch (JsonSyntaxException e){
+                        //Discard bad lines
+                    }
                 }
                 input.close();
             }

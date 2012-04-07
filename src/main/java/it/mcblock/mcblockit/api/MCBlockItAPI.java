@@ -1,6 +1,7 @@
 package it.mcblock.mcblockit.api;
 
 import it.mcblock.mcblockit.api.queue.*;
+import it.mcblock.mcblockit.api.queue.bancheck.BanCheckReply;
 import it.mcblock.mcblockit.api.userdata.UserData;
 import it.mcblock.mcblockit.api.userdata.UserDataCache;
 
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * The MCBlockIt server API
@@ -170,9 +172,12 @@ public abstract class MCBlockItAPI implements Runnable {
     private long queueStallUntil=0;
 
     private final String APIKey;
+    private final String APIPost;
 
     private final String URL = "http://api.mcblock.it/";
     private final String banURL = this.URL + "ban";
+    private final String banCheckURL = this.URL + "bancheck";
+    private final String banCheckConfirmURL = this.URL + "bancheckconfirm";
     private final String unbanURL = this.URL + "unban";
     private final String userdataURL = this.URL + "userdata/";
 
@@ -181,6 +186,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     public MCBlockItAPI(String APIKey, File dataFolder) {
         this.APIKey = APIKey;
+        this.APIPost="apikey=APIKey";
         this.players = new ArrayList<MCBIPlayer>();
         this.queue = new Queue(dataFolder);
         this.cache = new UserDataCache(dataFolder);
@@ -235,7 +241,13 @@ public abstract class MCBlockItAPI implements Runnable {
             e.printStackTrace();
             return null;
         }
-        return this.gsonCompact.fromJson(response.toString(), UserData.class);
+        UserData data=null;
+        try{
+            this.gsonCompact.fromJson(response.toString(), UserData.class);
+        } catch (JsonSyntaxException e){
+            //Boggle
+        }
+        return data;
     }
 
     private UserData getUserDataInstance(String username) {
@@ -255,6 +267,9 @@ public abstract class MCBlockItAPI implements Runnable {
 
     private boolean joinCheck(MCBIPlayer player) {
         final UserData data = this.getUserDataInstance(player.getName());
+        if(data==null){
+            return true;//If system derp, let on any player not locally banned.
+        }
         final MCBIConfig config = this.getConfig();
         if (config.isBanRestrictionEnabled() && (data.getBans().length >= config.getBanRestriction())) {
             return false;
@@ -278,54 +293,78 @@ public abstract class MCBlockItAPI implements Runnable {
             url = this.banURL;
         } else if (item instanceof UnbanItem) {
             url = this.unbanURL;
+        } else if (item instanceof BanCheck) {
+            url = this.banCheckURL;
         } else {
             return true;//Dump whatever this is.
         }
-        String POST = "API=" + this.APIKey + "&data=" + this.gsonCompact.toJson(item);
-        try {
-            POST = URLEncoder.encode(POST, "UTF-8");
-        } catch (final UnsupportedEncodingException e) {
-            // Apparently hates UTF-8
-        }
         //Time to send to the API!
-        return this.processResponse(this.sendToAPI(url, POST));
+        if(item instanceof BanCheck){
+            this.processBanCheck(this.sendToAPI(url, this.APIPost));
+            return true;
+        }
+        return this.processResponse(this.sendToAPI(url, this.APIPost + "&data=" + this.gsonCompact.toJson(item)));
     }
-    
+
+    private void processBanCheck(String response){
+        try{
+            BanCheckReply reply=this.gsonCompact.fromJson(response, BanCheckReply.class);
+            if(reply.unbans!=null){
+                for(String name:reply.unbans){
+                    this.unbanName(name);
+                }
+            }
+            if(reply.bans!=null){
+                for(String name:reply.bans){
+                    this.banName(name);
+                }
+            }
+            this.sendToAPI(this.banCheckConfirmURL, this.APIPost);//Don't care the reply.
+        } catch (JsonSyntaxException e){
+            this.processResponse(response);//Error code?
+        }
+    }
+
     private boolean processResponse(String response){
         if (response!=null && response.length() > 11) {
-            final APIReply reply = this.queue.gson.fromJson(response.toString(), APIReply.class);
-            if (reply.success()) {
-                return true;
-            }
-            long timeNow=(new Date()).getTime();
-            if(reply.getStatus()==1){//Rate limiting
-                this.queueStallUntil=timeNow+60000;//Minute delay
-                return false;
-            }
-            System.out.println("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
-            if(reply.getStatus()==2){
-                this.queueStallUntil=timeNow+1800000;//30 minute delay
-                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Maintenance!");
-                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Bans will not update on site for at least 30 mins.");
-                System.out.println("[MCBlockIt] delaying queue by 30 minutes for maintenance");
-            } else if(reply.getStatus()==3){//Barred? TODO
-                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Maintenance!");
-                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Bans will not update instantly on site.");
-            } else if(reply.getStatus()==4){//Invalid syntax
-                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Error! Ask MCBlockIt staff for help.");
-                return true;//I guess?
-            } else if(reply.getStatus()==5){//Invalid key
-                this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Shutting down. Invalid API.");
-                this.shutdown();
-                stop();
+            try{
+                final APIReply reply = this.queue.gson.fromJson(response.toString(), APIReply.class);
+
+                if (reply.success()) {
+                    return true;
+                }
+                long timeNow=(new Date()).getTime();
+                if(reply.getStatus()==1){//Rate limiting
+                    this.queueStallUntil=timeNow+60000;//Minute delay
+                    return false;
+                }
+                System.out.println("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
+                if(reply.getStatus()==2){
+                    this.queueStallUntil=timeNow+1800000;//30 minute delay
+                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Maintenance!");
+                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Bans will not update on site for at least 30 mins.");
+                    System.out.println("[MCBlockIt] delaying queue by 30 minutes for maintenance");
+                } else if(reply.getStatus()==3){//Barred? TODO
+                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Maintenance!");
+                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Bans will not update instantly on site.");
+                } else if(reply.getStatus()==4){//Invalid syntax
+                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Error! Ask MCBlockIt staff for help.");
+                    return true;//I guess?
+                } else if(reply.getStatus()==5){//Invalid key
+                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Shutting down. Invalid API.");
+                    this.shutdown();
+                    stop();
+                }
+            } catch (JsonSyntaxException e){
             }
             return false;
         }
         return false;
     }
-    
+
     private String sendToAPI(String url, String POST){
         StringBuilder response=new StringBuilder();
+        POST=Utils.UTF8Attempt(POST);
         try {
             final URL urlTarget = new URL(url);
             final URLConnection connection = urlTarget.openConnection();
@@ -351,7 +390,7 @@ public abstract class MCBlockItAPI implements Runnable {
         }
         return response.toString();
     }
-    
+
     protected abstract void shutdown();
 
     private void messageAdmins(String message){

@@ -16,6 +16,10 @@ public abstract class QueueItem implements Comparable<QueueItem> {
     public QueueItem() {
         this.localtimestamp = (new Date()).getTime();
     }
+    
+    public QueueItem(long time){
+        this.localtimestamp = 0;
+    }
 
     @Override
     public int compareTo(QueueItem other) {

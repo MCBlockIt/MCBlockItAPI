@@ -3,6 +3,7 @@ package it.mcblock.mcblockit.api.userdata;
 import java.io.*;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 public class UserDataCache {
     private final File cacheFolder;
@@ -43,7 +44,11 @@ public class UserDataCache {
                 System.out.println("Failed to read " + file);
                 e.printStackTrace();
             }
-            data = this.gson.fromJson(builder.toString(), UserData.class);
+            try{
+                data = this.gson.fromJson(builder.toString(), UserData.class);
+            } catch (JsonSyntaxException e){
+                //Boggle
+            }
         }
         return data;
     }
