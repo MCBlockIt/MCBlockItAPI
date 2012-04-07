@@ -5,10 +5,12 @@ import it.mcblock.mcblockit.api.queue.bancheck.BanCheckReply;
 import it.mcblock.mcblockit.api.userdata.UserData;
 import it.mcblock.mcblockit.api.userdata.UserDataCache;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -169,7 +171,7 @@ public abstract class MCBlockItAPI implements Runnable {
     private final ArrayList<MCBIPlayer> players;
 
     private final Queue queue;
-    private long queueStallUntil=0;
+    private long queueStallUntil = 0;
 
     private final String APIKey;
     private final String APIPost;
@@ -186,7 +188,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     public MCBlockItAPI(String APIKey, File dataFolder) {
         this.APIKey = APIKey;
-        this.APIPost="apikey=APIKey";
+        this.APIPost = "apikey=APIKey";
         this.players = new ArrayList<MCBIPlayer>();
         this.queue = new Queue(dataFolder);
         this.cache = new UserDataCache(dataFolder);
@@ -205,8 +207,8 @@ public abstract class MCBlockItAPI implements Runnable {
         try {
             QueueItem item;
             while (true) {
-                long time=(new Date()).getTime();
-                if(time>this.queueStallUntil){
+                final long time = (new Date()).getTime();
+                if (time > this.queueStallUntil) {
                     item = this.queue.peek();
                     if (item != null) {
                         if (this.process(item)) {
@@ -241,10 +243,10 @@ public abstract class MCBlockItAPI implements Runnable {
             e.printStackTrace();
             return null;
         }
-        UserData data=null;
-        try{
+        final UserData data = null;
+        try {
             this.gsonCompact.fromJson(response.toString(), UserData.class);
-        } catch (JsonSyntaxException e){
+        } catch (final JsonSyntaxException e) {
             //Boggle
         }
         return data;
@@ -267,7 +269,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     private boolean joinCheck(MCBIPlayer player) {
         final UserData data = this.getUserDataInstance(player.getName());
-        if(data==null){
+        if (data == null) {
             return true;//If system derp, let on any player not locally banned.
         }
         final MCBIConfig config = this.getConfig();
@@ -287,6 +289,12 @@ public abstract class MCBlockItAPI implements Runnable {
         return true;
     }
 
+    private void messageAdmins(String message) {
+        for (final MCBIPlayer player : MCBlockItAPI.getPlayers()) {
+            player.messageIfAdmin(message);
+        }
+    }
+
     private boolean process(QueueItem item) {
         String url = null;
         if (item instanceof BanItem) {
@@ -299,72 +307,72 @@ public abstract class MCBlockItAPI implements Runnable {
             return true;//Dump whatever this is.
         }
         //Time to send to the API!
-        if(item instanceof BanCheck){
+        if (item instanceof BanCheck) {
             this.processBanCheck(this.sendToAPI(url, this.APIPost));
             return true;
         }
         return this.processResponse(this.sendToAPI(url, this.APIPost + "&data=" + this.gsonCompact.toJson(item)));
     }
 
-    private void processBanCheck(String response){
-        try{
-            BanCheckReply reply=this.gsonCompact.fromJson(response, BanCheckReply.class);
-            if(reply.unbans!=null){
-                for(String name:reply.unbans){
+    private void processBanCheck(String response) {
+        try {
+            final BanCheckReply reply = this.gsonCompact.fromJson(response, BanCheckReply.class);
+            if (reply.unbans != null) {
+                for (final String name : reply.unbans) {
                     this.unbanName(name);
                 }
             }
-            if(reply.bans!=null){
-                for(String name:reply.bans){
+            if (reply.bans != null) {
+                for (final String name : reply.bans) {
                     this.banName(name);
                 }
             }
             this.sendToAPI(this.banCheckConfirmURL, this.APIPost);//Don't care the reply.
-        } catch (JsonSyntaxException e){
+        } catch (final JsonSyntaxException e) {
             this.processResponse(response);//Error code?
         }
     }
 
-    private boolean processResponse(String response){
-        if (response!=null && response.length() > 11) {
-            try{
+    private boolean processResponse(String response) {
+        if ((response != null) && (response.length() > 11)) {
+            try {
                 final APIReply reply = this.queue.gson.fromJson(response.toString(), APIReply.class);
 
                 if (reply.success()) {
                     return true;
                 }
-                long timeNow=(new Date()).getTime();
-                if(reply.getStatus()==1){//Rate limiting
-                    this.queueStallUntil=timeNow+60000;//Minute delay
+                final long timeNow = (new Date()).getTime();
+                if (reply.getStatus() == 1) {//Rate limiting
+                    this.queueStallUntil = timeNow + 60000;//Minute delay
                     return false;
                 }
                 System.out.println("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
-                if(reply.getStatus()==2){
-                    this.queueStallUntil=timeNow+1800000;//30 minute delay
-                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Maintenance!");
-                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Bans will not update on site for at least 30 mins.");
+                if (reply.getStatus() == 2) {
+                    this.queueStallUntil = timeNow + 1800000;//30 minute delay
+                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Maintenance!");
+                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Bans will not update on site for at least 30 mins.");
                     System.out.println("[MCBlockIt] delaying queue by 30 minutes for maintenance");
-                } else if(reply.getStatus()==3){//Barred? TODO
-                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Maintenance!");
-                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Bans will not update instantly on site.");
-                } else if(reply.getStatus()==4){//Invalid syntax
-                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Error! Ask MCBlockIt staff for help.");
+                } else if (reply.getStatus() == 3) {//Barred? TODO
+                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Maintenance!");
+                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Bans will not update instantly on site.");
+                } else if (reply.getStatus() == 4) {//Invalid syntax
+                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Error! Ask MCBlockIt staff for help.");
                     return true;//I guess?
-                } else if(reply.getStatus()==5){//Invalid key
-                    this.messageAdmins(Utils.COLOR_CHAR+"c[MCBlockIt]"+Utils.COLOR_CHAR+"f Shutting down. Invalid API.");
+                } else if (reply.getStatus() == 5) {//Invalid key
+                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Shutting down. Invalid API.");
                     this.shutdown();
-                    stop();
+                    MCBlockItAPI.stop();
                 }
-            } catch (JsonSyntaxException e){
+            } catch (final JsonSyntaxException e) {
             }
             return false;
         }
         return false;
     }
 
-    private String sendToAPI(String url, String POST){
-        StringBuilder response=new StringBuilder();
-        POST=Utils.UTF8Attempt(POST);
+    private String sendToAPI(String url, String POST) {
+        final StringBuilder response = new StringBuilder();
+        POST = Utils.UTF8Attempt(POST);
         try {
             final URL urlTarget = new URL(url);
             final URLConnection connection = urlTarget.openConnection();
@@ -391,14 +399,6 @@ public abstract class MCBlockItAPI implements Runnable {
         return response.toString();
     }
 
-    protected abstract void shutdown();
-
-    private void messageAdmins(String message){
-        for(MCBIPlayer player:getPlayers()){
-            player.messageIfAdmin(message);
-        }
-    }
-
     /**
      * Ban a username from the system.
      * Please do so such that if system were removed players would remain banned,
@@ -408,6 +408,8 @@ public abstract class MCBlockItAPI implements Runnable {
      *            Name to ban
      */
     protected abstract void banName(String name);
+
+    protected abstract void shutdown();
 
     /**
      * Unban a username from the system.

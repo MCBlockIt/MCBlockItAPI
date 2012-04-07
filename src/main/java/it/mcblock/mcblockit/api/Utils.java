@@ -38,8 +38,8 @@ public class Utils {
         }
         return builder.toString();
     }
-    
-    public static String UTF8Attempt(String string){
+
+    public static String UTF8Attempt(String string) {
         try {
             return URLEncoder.encode(string, "UTF-8");
         } catch (final UnsupportedEncodingException e) {

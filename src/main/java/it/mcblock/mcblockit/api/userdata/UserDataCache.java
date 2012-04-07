@@ -19,12 +19,27 @@ public class UserDataCache {
         }
     }
 
-    public long lastMod(String name) {
+    public void addUserData(UserData data) {
+        final String name = data.getUsername().toLowerCase();
+        final File file = new File(this.cacheFolder, name + ".json");
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            final BufferedWriter output = new BufferedWriter(new FileWriter(file));
+            output.write(this.gson.toJson(data));
+            output.close();
+        } catch (final IOException e) {
+            System.out.println("Failed to write " + file);
+            e.printStackTrace();
+        }
+    }
+
+    public void delUserCache(String name) {
         final File file = new File(this.cacheFolder, name.toLowerCase() + ".json");
         if (file.exists()) {
-            return file.lastModified();
+            file.delete();
         }
-        return 0;
     }
 
     public UserData getUserData(String name) {
@@ -44,35 +59,20 @@ public class UserDataCache {
                 System.out.println("Failed to read " + file);
                 e.printStackTrace();
             }
-            try{
+            try {
                 data = this.gson.fromJson(builder.toString(), UserData.class);
-            } catch (JsonSyntaxException e){
+            } catch (final JsonSyntaxException e) {
                 //Boggle
             }
         }
         return data;
     }
 
-    public void delUserCache(String name) {
+    public long lastMod(String name) {
         final File file = new File(this.cacheFolder, name.toLowerCase() + ".json");
         if (file.exists()) {
-            file.delete();
+            return file.lastModified();
         }
-    }
-
-    public void addUserData(UserData data) {
-        final String name = data.getUsername().toLowerCase();
-        final File file = new File(this.cacheFolder, name + ".json");
-        if (file.exists()) {
-            file.delete();
-        }
-        try {
-            final BufferedWriter output = new BufferedWriter(new FileWriter(file));
-            output.write(this.gson.toJson(data));
-            output.close();
-        } catch (final IOException e) {
-            System.out.println("Failed to write " + file);
-            e.printStackTrace();
-        }
+        return 0;
     }
 }

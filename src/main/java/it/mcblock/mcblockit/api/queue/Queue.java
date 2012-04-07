@@ -63,9 +63,9 @@ public class Queue extends PriorityQueue<QueueItem> {
                     if (line.length() < 10) {
                         continue;
                     }
-                    try{
+                    try {
                         super.add((QueueItem) this.gson.fromJson(line, clazz));
-                    } catch (JsonSyntaxException e){
+                    } catch (final JsonSyntaxException e) {
                         //Discard bad lines
                     }
                 }
