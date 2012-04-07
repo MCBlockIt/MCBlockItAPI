@@ -282,38 +282,17 @@ public abstract class MCBlockItAPI implements Runnable {
             return true;//Dump whatever this is.
         }
         String POST = "API=" + this.APIKey + "&data=" + this.gsonCompact.toJson(item);
-        final StringBuilder response = new StringBuilder();
         try {
             POST = URLEncoder.encode(POST, "UTF-8");
         } catch (final UnsupportedEncodingException e) {
             // Apparently hates UTF-8
         }
         //Time to send to the API!
-        try {
-            final URL urlTarget = new URL(url);
-            final URLConnection connection = urlTarget.openConnection();
-            connection.setDoOutput(true);
-            connection.setConnectTimeout(6000);
-            connection.setReadTimeout(9000);
-            connection.setRequestProperty("User-agent", "MCBlockIt");
-            final OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-            writer.write(POST);
-            writer.flush();
-
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-            writer.close();
-            reader.close();
-        } catch (final Exception e) {
-            System.out.println("Unexpected failure to call MCBlockIt");
-            e.printStackTrace();
-            return false;
-        }
-
-        if (response.length() > 11) {
+        return this.processResponse(this.sendToAPI(url, POST));
+    }
+    
+    private boolean processResponse(String response){
+        if (response!=null && response.length() > 11) {
             final APIReply reply = this.queue.gson.fromJson(response.toString(), APIReply.class);
             if (reply.success()) {
                 return true;
@@ -343,6 +322,34 @@ public abstract class MCBlockItAPI implements Runnable {
             return false;
         }
         return false;
+    }
+    
+    private String sendToAPI(String url, String POST){
+        StringBuilder response=new StringBuilder();
+        try {
+            final URL urlTarget = new URL(url);
+            final URLConnection connection = urlTarget.openConnection();
+            connection.setDoOutput(true);
+            connection.setConnectTimeout(6000);
+            connection.setReadTimeout(9000);
+            connection.setRequestProperty("User-agent", "MCBlockIt");
+            final OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            writer.write(POST);
+            writer.flush();
+
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            writer.close();
+            reader.close();
+        } catch (final Exception e) {
+            System.out.println("Unexpected failure to call MCBlockIt");
+            e.printStackTrace();
+            return null;
+        }
+        return response.toString();
     }
     
     protected abstract void shutdown();
