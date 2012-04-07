@@ -43,14 +43,16 @@ public abstract class MCBlockItAPI implements Runnable {
      * Ban a user
      * 
      * @param name
-     *            Name to be banned.
+     *            Name to be banned
      * @param admin
      *            Name of admin banning the user
+     * @param type
+     *            Type of ban
      * @param reason
      *            Reason for the ban
      */
-    public static void ban(String name, String admin, String reason) {
-        MCBlockItAPI.instance().queue.add(new BanItem(name, admin, reason));
+    public static void ban(String name, String admin, BanType type, String reason) {
+        MCBlockItAPI.instance().queue.add(new BanItem(name, admin, type.id(), reason));
         MCBlockItAPI.instance();
         final MCBIPlayer player = MCBlockItAPI.getPlayer(name);
         if (player != null) {

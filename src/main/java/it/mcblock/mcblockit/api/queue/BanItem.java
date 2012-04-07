@@ -10,12 +10,14 @@ package it.mcblock.mcblockit.api.queue;
 @SuppressWarnings("unused")
 public class BanItem extends QueueItem {
     private final String name;
-    private final String reason;
     private final String admin;
+    private final int type;//0=local,1=global,2=EAC
+    private final String reason;
 
-    public BanItem(String name, String admin, String reason) {
+    public BanItem(String name, String admin, int type, String reason) {
         this.name = name;
         this.admin = admin;
+        this.type = type;
         this.reason = reason;
     }
 
