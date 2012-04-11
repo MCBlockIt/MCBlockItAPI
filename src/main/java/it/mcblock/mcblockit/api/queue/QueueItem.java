@@ -14,7 +14,7 @@ public abstract class QueueItem implements Comparable<QueueItem> {
     private final long timestamp;
 
     public QueueItem() {
-        this.timestamp = (new Date()).getTime();
+        this.timestamp = (new Date()).getTime()/1000;
     }
 
     public QueueItem(long time) {
