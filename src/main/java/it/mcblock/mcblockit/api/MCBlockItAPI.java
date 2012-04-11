@@ -36,7 +36,7 @@ public abstract class MCBlockItAPI implements Runnable {
     public static final String KICK_REASON_BLOCKED = Utils.COLOR_CHAR + "cBlocked by MCBlockIt. " + Utils.COLOR_CHAR + "fMore info at http://blocked.mcblock.it";
 
     private static MCBlockItAPI instance;
-    private static Object playerSync;
+    private static Object playerSync=new Object();
     private static Thread thread;
 
     /**
@@ -190,7 +190,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     public MCBlockItAPI(String APIKey, File dataFolder) {
         this.APIKey = APIKey;
-        this.APIPost = "apikey=APIKey";
+        this.APIPost = "API="+APIKey;
         this.players = new ArrayList<MCBIPlayer>();
         this.queue = new Queue(dataFolder);
         this.cache = new UserDataCache(dataFolder);
@@ -218,7 +218,7 @@ public abstract class MCBlockItAPI implements Runnable {
                         }
                     }
                 }
-                Thread.sleep(1000);
+                Thread.sleep(10000);
             }
         } catch (final InterruptedException e) {
             MCBlockItAPI.instance = null;
@@ -374,7 +374,8 @@ public abstract class MCBlockItAPI implements Runnable {
 
     private String sendToAPI(String url, String POST) {
         final StringBuilder response = new StringBuilder();
-        POST = Utils.UTF8Attempt(POST);
+        //POST = Utils.UTF8Attempt(POST);
+        //System.out.println(POST);
         try {
             final URL urlTarget = new URL(url);
             final URLConnection connection = urlTarget.openConnection();
