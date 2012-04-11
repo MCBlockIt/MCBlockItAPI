@@ -11,18 +11,18 @@ import java.util.Date;
  * 
  */
 public abstract class QueueItem implements Comparable<QueueItem> {
-    private final long localtimestamp;
+    private final long timestamp;
 
     public QueueItem() {
-        this.localtimestamp = (new Date()).getTime();
+        this.timestamp = (new Date()).getTime();
     }
 
     public QueueItem(long time) {
-        this.localtimestamp = 0;
+        this.timestamp = 0;
     }
 
     @Override
     public int compareTo(QueueItem other) {
-        return (int) (this.localtimestamp - other.localtimestamp);
+        return (int) (this.timestamp - other.timestamp);
     }
 }

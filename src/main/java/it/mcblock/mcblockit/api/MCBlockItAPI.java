@@ -374,8 +374,6 @@ public abstract class MCBlockItAPI implements Runnable {
 
     private String sendToAPI(String url, String POST) {
         final StringBuilder response = new StringBuilder();
-        //POST = Utils.UTF8Attempt(POST);
-        //System.out.println(POST);
         try {
             final URL urlTarget = new URL(url);
             final URLConnection connection = urlTarget.openConnection();
