@@ -348,15 +348,16 @@ public abstract class MCBlockItAPI implements Runnable {
                     this.queueStallUntil = timeNow + 60000;//Minute delay
                     return false;
                 }
-                System.out.println("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
                 if (reply.getStatus() == 2) {
                     this.queueStallUntil = timeNow + 1800000;//30 minute delay
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Maintenance!");
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Bans will not update on site for at least 30 mins.");
                     System.out.println("[MCBlockIt] delaying queue by 30 minutes for maintenance");
-                } else if (reply.getStatus() == 3) {//Barred? TODO
-                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Maintenance!");
-                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Bans will not update instantly on site.");
+                    return false;
+                } 
+                System.out.println("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
+                if (reply.getStatus() == 3) {//You cannot do this
+                    return true;
                 } else if (reply.getStatus() == 4) {//Invalid syntax
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Error! Ask MCBlockIt staff for help.");
                     return true;//I guess?
@@ -364,6 +365,9 @@ public abstract class MCBlockItAPI implements Runnable {
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Shutting down. Invalid API.");
                     this.shutdown();
                     MCBlockItAPI.stop();
+                /*} else if (reply.getStatus() == 01189998819991197253){
+                  TODO: Improved emergency services
+                    */
                 }
             } catch (final JsonSyntaxException e) {
             }
