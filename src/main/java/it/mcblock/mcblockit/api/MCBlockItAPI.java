@@ -245,9 +245,9 @@ public abstract class MCBlockItAPI implements Runnable {
             e.printStackTrace();
             return null;
         }
-        final UserData data = null;
+        UserData data = null;
         try {
-            this.gsonCompact.fromJson(response.toString(), UserData.class);
+            data = this.gsonCompact.fromJson(response.toString(), UserData.class);
         } catch (final JsonSyntaxException e) {
             //Boggle
         }
