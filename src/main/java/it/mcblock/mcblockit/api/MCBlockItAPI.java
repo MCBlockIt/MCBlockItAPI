@@ -29,11 +29,11 @@ public abstract class MCBlockItAPI implements Runnable {
     /**
      * Use this value when kicking a user off the server for being locally banned.
      */
-    public static final String KICK_REASON_BANNED = "    " + Utils.COLOR_CHAR + "cBanned. " + Utils.COLOR_CHAR + "fAppeal at http://appeal.mcblock.it";
+    public static final String KICK_REASON_BANNED = "      " + Utils.COLOR_CHAR + "cBanned. " + Utils.COLOR_CHAR + "fAppeal at http://appeal.mcblock.it";
     /**
      * Use this value when kicking a user off the server for being blocked for other reasons.
      */
-    public static final String KICK_REASON_BLOCKED = "    " + Utils.COLOR_CHAR + "cBlocked by MCBlockIt. " + Utils.COLOR_CHAR + "fMore info at http://blocked.mcblock.it";
+    public static final String KICK_REASON_BLOCKED = "      " + Utils.COLOR_CHAR + "cBlocked by MCBlockIt. " + Utils.COLOR_CHAR + "fMore info at http://blocked.mcblock.it";
 
     private static MCBlockItAPI instance;
     private static Object playerSync=new Object();
