@@ -24,6 +24,20 @@ import com.google.gson.JsonSyntaxException;
  * 
  * @author Matt Baxter
  * 
+ *         Copyright 2012 Matt Baxter
+ * 
+ *         Licensed under the Apache License, Version 2.0 (the "License");
+ *         you may not use this file except in compliance with the License.
+ *         You may obtain a copy of the License at
+ * 
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *         Unless required by applicable law or agreed to in writing, software
+ *         distributed under the License is distributed on an "AS IS" BASIS,
+ *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *         See the License for the specific language governing permissions and
+ *         limitations under the License.
+ * 
  */
 public abstract class MCBlockItAPI implements Runnable {
     /**
@@ -36,7 +50,7 @@ public abstract class MCBlockItAPI implements Runnable {
     public static final String KICK_REASON_BLOCKED = "      " + Utils.COLOR_CHAR + "cBlocked by MCBlockIt. " + Utils.COLOR_CHAR + "fMore info at http://blocked.mcblock.it";
 
     private static MCBlockItAPI instance;
-    private static Object playerSync=new Object();
+    private static Object playerSync = new Object();
     private static Thread thread;
 
     /**
@@ -190,7 +204,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     public MCBlockItAPI(String APIKey, File dataFolder) {
         this.APIKey = APIKey;
-        this.APIPost = "API="+APIKey;
+        this.APIPost = "API=" + APIKey;
         this.players = new ArrayList<MCBIPlayer>();
         this.queue = new Queue(dataFolder);
         this.cache = new UserDataCache(dataFolder);
@@ -354,7 +368,7 @@ public abstract class MCBlockItAPI implements Runnable {
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Bans will not update on site for at least 30 mins.");
                     System.out.println("[MCBlockIt] delaying queue by 30 minutes for maintenance");
                     return false;
-                } 
+                }
                 System.out.println("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
                 if (reply.getStatus() == 3) {//You cannot do this
                     return true;
@@ -365,9 +379,9 @@ public abstract class MCBlockItAPI implements Runnable {
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Shutting down. Invalid API.");
                     this.shutdown();
                     MCBlockItAPI.stop();
-                /*} else if (reply.getStatus() == 01189998819991197253){
-                  TODO: Improved emergency services
-                    */
+                    /*} else if (reply.getStatus() == 01189998819991197253){
+                      TODO: Improved emergency services
+                        */
                 }
             } catch (final JsonSyntaxException e) {
             }
