@@ -43,7 +43,7 @@ public abstract class MCBlockItAPI implements Runnable {
     /**
      * Use this value when kicking a user off the server for being locally banned.
      */
-    public static final String KICK_REASON_BANNED = "      " + Utils.COLOR_CHAR + "cBanned. " + Utils.COLOR_CHAR + "fAppeal at http://appeal.mcblock.it";
+    public static final String KICK_REASON_BANNED = "      " + Utils.COLOR_CHAR + "cBanned. " + Utils.COLOR_CHAR + "fAppeal at http://banned.mcblock.it";
     /**
      * Use this value when kicking a user off the server for being blocked for other reasons.
      */
@@ -195,7 +195,6 @@ public abstract class MCBlockItAPI implements Runnable {
     private final String URL = "http://api.mcblock.it/";
     private final String banURL = this.URL + "ban";
     private final String banCheckURL = this.URL + "bancheck";
-    private final String banCheckConfirmURL = this.URL + "bancheckconfirm";
     private final String unbanURL = this.URL + "unban";
     private final String userdataURL = this.URL + "userdata/";
 
@@ -343,7 +342,6 @@ public abstract class MCBlockItAPI implements Runnable {
                     this.banName(name);
                 }
             }
-            this.sendToAPI(this.banCheckConfirmURL, this.APIPost);//Don't care the reply.
         } catch (final JsonSyntaxException e) {
             this.processResponse(response);//Error code?
         }
@@ -358,11 +356,11 @@ public abstract class MCBlockItAPI implements Runnable {
                     return true;
                 }
                 final long timeNow = (new Date()).getTime();
-                if (reply.getStatus() == 1) {//Rate limiting
+                if (reply.getStatus() == 429) {//Rate limiting
                     this.queueStallUntil = timeNow + 60000;//Minute delay
                     return false;
                 }
-                if (reply.getStatus() == 2) {
+                if (reply.getStatus() == 503) {
                     this.queueStallUntil = timeNow + 1800000;//30 minute delay
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Maintenance!");
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Bans will not update on site for at least 30 mins.");
@@ -370,17 +368,17 @@ public abstract class MCBlockItAPI implements Runnable {
                     return false;
                 }
                 System.out.println("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
-                if (reply.getStatus() == 3) {//You cannot do this
+                if (reply.getStatus() == 403) {//You cannot do this
                     return true;
-                } else if (reply.getStatus() == 4) {//Invalid syntax
+                } else if (reply.getStatus() == 400) {//Invalid syntax
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Error! Ask MCBlockIt staff for help.");
                     return true;//I guess?
-                } else if (reply.getStatus() == 5) {//Invalid key
-                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Shutting down. Invalid API.");
+                } else if (reply.getStatus() == 401) {//Invalid key
+                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Shutting down. Invalid API Key.");
                     this.shutdown();
                     MCBlockItAPI.stop();
-                    /*} else if (reply.getStatus() == 01189998819991197253){
-                      TODO: Improved emergency services
+                    /*} else if (reply.getStatus() == 418){
+                      TODO: I'm a Teapot
                         */
                 }
             } catch (final JsonSyntaxException e) {

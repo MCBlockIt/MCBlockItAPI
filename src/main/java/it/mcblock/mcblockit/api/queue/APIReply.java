@@ -33,6 +33,6 @@ public class APIReply {
     }
 
     public boolean success() {
-        return this.status == 0;
+        return this.status == 200;
     }
 }
