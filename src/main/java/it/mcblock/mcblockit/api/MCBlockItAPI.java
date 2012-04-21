@@ -197,7 +197,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     private final File revisionInfo;
     private String currentRevisionId = "0";
-    private Long lastBanCheck;
+    private Long lastBanCheck = 0L;
 
     private final Gson gsonCompact;
     private final UserDataCache cache;
