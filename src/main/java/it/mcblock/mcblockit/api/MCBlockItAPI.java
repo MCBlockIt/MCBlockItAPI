@@ -5,10 +5,7 @@ import it.mcblock.mcblockit.api.queue.bancheck.BanCheckReply;
 import it.mcblock.mcblockit.api.userdata.UserData;
 import it.mcblock.mcblockit.api.userdata.UserDataCache;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -198,6 +195,10 @@ public abstract class MCBlockItAPI implements Runnable {
     private final String unbanURL = this.URL + "unban";
     private final String userdataURL = this.URL + "userdata/";
 
+    private final File revisionInfo;
+    private String currentRevisionId = "0";
+    private Long lastBanCheck;
+
     private final Gson gsonCompact;
     private final UserDataCache cache;
 
@@ -207,7 +208,15 @@ public abstract class MCBlockItAPI implements Runnable {
         this.players = new ArrayList<MCBIPlayer>();
         this.queue = new Queue(dataFolder);
         this.cache = new UserDataCache(dataFolder);
+        this.revisionInfo = new File(dataFolder, "revisionData");
         this.gsonCompact = new Gson();
+
+        try {
+            FileReader read = new FileReader(revisionInfo);
+            this.currentRevisionId = read.toString();
+        } catch (IOException e) {
+            if (revisionInfo.exists()) System.out.println("[MCBlockIt] " + revisionInfo.toString() + " - Cannot read from revision storage file! Maybe a file permission error?");
+        }
     }
 
     /**
@@ -224,7 +233,12 @@ public abstract class MCBlockItAPI implements Runnable {
             while (true) {
                 final long time = (new Date()).getTime();
                 if (time > this.queueStallUntil) {
-                    item = this.queue.peek();
+                    if(time - lastBanCheck > 1200000){
+                        item = new BanCheck(this.currentRevisionId);//lol it doesn't even need to be added
+                        lastBanCheck = time;
+                    } else {
+                        item = this.queue.peek();
+                    }
                     if (item != null) {
                         if (this.process(item)) {
                             this.queue.remove(item);
@@ -323,7 +337,7 @@ public abstract class MCBlockItAPI implements Runnable {
         }
         //Time to send to the API!
         if (item instanceof BanCheck) {
-            this.processBanCheck(this.sendToAPI(url, this.APIPost));
+            this.processBanCheck(this.sendToAPI(url, this.APIPost + "&data=" + this.gsonCompact.toJson(item)));
             return true;
         }
         return this.processResponse(this.sendToAPI(url, this.APIPost + "&data=" + this.gsonCompact.toJson(item)));
@@ -342,8 +356,15 @@ public abstract class MCBlockItAPI implements Runnable {
                     this.banName(name);
                 }
             }
+            this.currentRevisionId = reply.revisionID;
+            FileWriter write    = new FileWriter(revisionInfo);
+            PrintWriter out     = new PrintWriter(write);
+            out.printf(reply.revisionID);
+            out.close();
         } catch (final JsonSyntaxException e) {
             this.processResponse(response);//Error code?
+        } catch (final IOException e) {
+            System.out.println("[MCBlockIt] " + revisionInfo.toString() + " - Cannot write to revision storage file! Maybe a file permission error?");
         }
     }
 
