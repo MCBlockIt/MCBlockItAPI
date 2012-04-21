@@ -197,7 +197,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     private final File revisionInfo;
     private String currentRevisionId = "0";
-    private Long lastBanCheck;
+    private Long lastBanCheck = 0L;
 
     private final Gson gsonCompact;
     private final UserDataCache cache;
@@ -359,7 +359,7 @@ public abstract class MCBlockItAPI implements Runnable {
             this.currentRevisionId = reply.revisionID;
             FileWriter write    = new FileWriter(revisionInfo);
             PrintWriter out     = new PrintWriter(write);
-            out.printf(reply.revisionID);
+            out.print(reply.revisionID);
             out.close();
         } catch (final JsonSyntaxException e) {
             this.processResponse(response);//Error code?
