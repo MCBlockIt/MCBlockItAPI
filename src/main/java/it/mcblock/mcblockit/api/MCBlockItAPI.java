@@ -219,17 +219,19 @@ public abstract class MCBlockItAPI implements Runnable {
         this.APIKey = APIKey;
         this.APIPost = "API=" + APIKey;
         this.players = new ArrayList<MCBIPlayer>();
-        this.banList=new BanList(dataFolder);
+        this.banList = new BanList(dataFolder);
         this.queue = new Queue(dataFolder);
         this.cache = new UserDataCache(dataFolder);
         this.revisionInfo = new File(dataFolder, "revisionData");
         this.gsonCompact = new Gson();
 
         try {
-            FileReader read = new FileReader(revisionInfo);
+            final FileReader read = new FileReader(this.revisionInfo);
             this.currentRevisionId = read.toString();
-        } catch (IOException e) {
-            if (revisionInfo.exists()) System.out.println("[MCBlockIt] " + revisionInfo.toString() + " - Cannot read from revision storage file! Maybe a file permission error?");
+        } catch (final IOException e) {
+            if (this.revisionInfo.exists()) {
+                System.out.println("[MCBlockIt] " + this.revisionInfo.toString() + " - Cannot read from revision storage file! Maybe a file permission error?");
+            }
         }
     }
 
@@ -247,9 +249,9 @@ public abstract class MCBlockItAPI implements Runnable {
             while (true) {
                 final long time = (new Date()).getTime();
                 if (time > this.queueStallUntil) {
-                    if(time - lastBanCheck > 1200000){
+                    if ((time - this.lastBanCheck) > 1200000) {
                         item = new BanCheck(this.currentRevisionId);//lol it doesn't even need to be added
-                        lastBanCheck = time;
+                        this.lastBanCheck = time;
                     } else {
                         item = this.queue.peek();
                     }
@@ -371,14 +373,14 @@ public abstract class MCBlockItAPI implements Runnable {
                 }
             }
             this.currentRevisionId = reply.revisionID;
-            FileWriter write    = new FileWriter(revisionInfo);
-            PrintWriter out     = new PrintWriter(write);
+            final FileWriter write = new FileWriter(this.revisionInfo);
+            final PrintWriter out = new PrintWriter(write);
             out.print(reply.revisionID);
             out.close();
         } catch (final JsonSyntaxException e) {
             this.processResponse(response);//Error code?
         } catch (final IOException e) {
-            System.out.println("[MCBlockIt] " + revisionInfo.toString() + " - Cannot write to revision storage file! Maybe a file permission error?");
+            System.out.println("[MCBlockIt] " + this.revisionInfo.toString() + " - Cannot write to revision storage file! Maybe a file permission error?");
         }
     }
 
@@ -450,7 +452,6 @@ public abstract class MCBlockItAPI implements Runnable {
         }
         return response.toString();
     }
-
 
     protected abstract void shutdown();
 

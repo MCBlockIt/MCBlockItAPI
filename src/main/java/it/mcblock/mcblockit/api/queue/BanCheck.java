@@ -23,7 +23,7 @@ package it.mcblock.mcblockit.api.queue;
 @SuppressWarnings("unused")
 public class BanCheck extends QueueItem {
 
-    private String revisionID;
+    private final String revisionID;
 
     public BanCheck(String revisionID) {
         this.revisionID = revisionID;
