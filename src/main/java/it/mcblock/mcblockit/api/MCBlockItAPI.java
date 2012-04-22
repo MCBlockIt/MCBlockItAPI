@@ -70,6 +70,7 @@ public abstract class MCBlockItAPI implements Runnable {
             player.kick(MCBlockItAPI.KICK_REASON_BANNED);
         }
         MCBlockItAPI.instance().banList.addBan(name);
+        MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been banned [" + reason + " (" + type.toString() + ")]");
     }
 
     /**
@@ -183,6 +184,7 @@ public abstract class MCBlockItAPI implements Runnable {
     public static void unban(String name) {
         MCBlockItAPI.instance().queue.add(new UnbanItem(name));
         MCBlockItAPI.instance().banList.delBan(name);
+        MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been unbanned.");
     }
 
     private static MCBlockItAPI instance() {
