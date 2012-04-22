@@ -29,14 +29,14 @@
 
     <distributionManagement>
         <repository>
-            <id>crashCraftReleases</id>
-            <name>CrashCraft Releases</name>
-            <url>http://neko.crashcraft.co.uk:8081/nexus/content/repositories/releases</url>
+            <id>kittehReleases</id>
+            <name>Kitteh Releases</name>
+            <url>http://repo.kitteh.org/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
-            <id>crashCraftSnapshots</id>
-            <name>CrashCraft Snapshots</name>
-            <url>http://neko.crashcraft.co.uk:8081/nexus/content/repositories/snapshots</url>
+            <id>kittehSnapshots</id>
+            <name>Kitteh Snapshots</name>
+            <url>http://repo.kitteh.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
