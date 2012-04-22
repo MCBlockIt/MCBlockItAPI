@@ -20,7 +20,9 @@ package it.mcblock.mcblockit.api.queue;
  *         limitations under the License.
  * 
  */
+@SuppressWarnings("unused")
 public class BanCheck extends QueueItem {
+
     private String revisionID;
 
     public BanCheck(String revisionID) {
