@@ -69,7 +69,7 @@ public abstract class MCBlockItAPI implements Runnable {
         if (player != null) {
             player.kick(MCBlockItAPI.KICK_REASON_BANNED);
         }
-        MCBlockItAPI.instance().banName(name);
+        MCBlockItAPI.instance().banList.addBan(name);
     }
 
     /**
@@ -140,6 +140,17 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     /**
+     * Check if a username is banned
+     * 
+     * @param username
+     *            Username to search
+     * @return true if the user is banned
+     */
+    public static boolean isBanned(String username) {
+        return MCBlockItAPI.instance().banList.isBanned(username);
+    }
+
+    /**
      * @param player
      * @return true if should be allowed to join
      */
@@ -171,7 +182,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     public static void unban(String name) {
         MCBlockItAPI.instance().queue.add(new UnbanItem(name));
-        MCBlockItAPI.instance().unbanName(name);
+        MCBlockItAPI.instance().banList.delBan(name);
     }
 
     private static MCBlockItAPI instance() {
@@ -182,6 +193,8 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     private final ArrayList<MCBIPlayer> players;
+
+    private final BanList banList;
 
     private final Queue queue;
     private long queueStallUntil = 0;
@@ -206,6 +219,7 @@ public abstract class MCBlockItAPI implements Runnable {
         this.APIKey = APIKey;
         this.APIPost = "API=" + APIKey;
         this.players = new ArrayList<MCBIPlayer>();
+        this.banList=new BanList(dataFolder);
         this.queue = new Queue(dataFolder);
         this.cache = new UserDataCache(dataFolder);
         this.revisionInfo = new File(dataFolder, "revisionData");
@@ -348,12 +362,12 @@ public abstract class MCBlockItAPI implements Runnable {
             final BanCheckReply reply = this.gsonCompact.fromJson(response, BanCheckReply.class);
             if (reply.unbans != null) {
                 for (final String name : reply.unbans) {
-                    this.unbanName(name);
+                    this.banList.delBan(name);
                 }
             }
             if (reply.bans != null) {
                 for (final String name : reply.bans) {
-                    this.banName(name);
+                    this.banList.addBan(name);
                 }
             }
             this.currentRevisionId = reply.revisionID;
@@ -437,25 +451,7 @@ public abstract class MCBlockItAPI implements Runnable {
         return response.toString();
     }
 
-    /**
-     * Ban a username from the system.
-     * Please do so such that if system were removed players would remain banned,
-     * eg. For Mojang server implementations (including Bukkit), modify the banned-players.txt
-     * 
-     * @param name
-     *            Name to ban
-     */
-    protected abstract void banName(String name);
 
     protected abstract void shutdown();
-
-    /**
-     * Unban a username from the system.
-     * See banName(String) for note on usage
-     * 
-     * @param name
-     *            Name to unban
-     */
-    protected abstract void unbanName(String name);
 
 }
