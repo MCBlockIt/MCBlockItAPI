@@ -74,6 +74,15 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     /**
+     * Import bans in String array
+     *
+     * @param names
+     */
+    public static void importBans(String[] names) {
+        MCBlockItAPI.instance().queue.add(new ImportItem(names));
+    }
+
+    /**
      * Check if the API is chugging along
      * 
      * @return true if running
@@ -208,6 +217,7 @@ public abstract class MCBlockItAPI implements Runnable {
     private final String banURL = this.URL + "ban";
     private final String banCheckURL = this.URL + "bancheck";
     private final String unbanURL = this.URL + "unban";
+    private final String importURL = this.URL + "import";
     private final String userdataURL = this.URL + "userdata/";
 
     private final File revisionInfo;
@@ -350,6 +360,8 @@ public abstract class MCBlockItAPI implements Runnable {
             url = this.unbanURL;
         } else if (item instanceof BanCheck) {
             url = this.banCheckURL;
+        } else if (item instanceof ImportItem) {
+            url = this.importURL;
         } else {
             return true;//Dump whatever this is.
         }
