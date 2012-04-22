@@ -4,7 +4,7 @@
     <groupId>it.mcblock</groupId>
     <artifactId>mcblockitapi</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>MCBlockItAPI ${version}</name>
+    <name>MCBlockItAPI ${project.version}</name>
     <url>http://www.mcblock.it/</url>
     <description>The premier minecraft global banning solution</description>
 
