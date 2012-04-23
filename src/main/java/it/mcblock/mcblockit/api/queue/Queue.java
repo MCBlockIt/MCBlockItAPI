@@ -30,6 +30,7 @@ public class Queue extends PriorityQueue<QueueItem> {
     private static final long serialVersionUID = 1L;
     private final File banQueue;
     private final File unbanQueue;
+    private final File importQueue;
     public final Gson gson;
 
     public Queue(File dataFolder) {
@@ -42,6 +43,8 @@ public class Queue extends PriorityQueue<QueueItem> {
         this.load(this.banQueue, BanItem.class);
         this.unbanQueue = new File(queueFolder, "unbans");
         this.load(this.unbanQueue, UnbanItem.class);
+        this.importQueue = new File(queueFolder, "import");
+        this.load(this.importQueue,ImportItem.class);
     }
 
     @Override
@@ -95,6 +98,7 @@ public class Queue extends PriorityQueue<QueueItem> {
         try {
             final BufferedWriter outputBans = new BufferedWriter(new FileWriter(this.banQueue));
             final BufferedWriter outputUnbans = new BufferedWriter(new FileWriter(this.unbanQueue));
+            final BufferedWriter outputImport = new BufferedWriter(new FileWriter(this.importQueue));
 
             synchronized (this) {
                 for (final QueueItem item : this) {
@@ -102,11 +106,14 @@ public class Queue extends PriorityQueue<QueueItem> {
                         outputBans.write(this.gson.toJson(item) + "\n");
                     } else if (item instanceof UnbanItem) {
                         outputUnbans.write(this.gson.toJson(item) + "\n");
+                    } else if (item instanceof ImportItem) {
+                        outputImport.write(this.gson.toJson(item) + "\n");
                     }
                 }
             }
             outputBans.close();
             outputUnbans.close();
+            outputImport.close();
         } catch (final IOException e) {
             System.out.println("Failed to write");
             e.printStackTrace();
