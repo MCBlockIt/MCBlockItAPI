@@ -1,11 +1,11 @@
 package it.mcblock.mcblockit.api.queue;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class ImportItem extends QueueItem {
-    private final ArrayList<String> users;
+    private final List<String> users;
 
-    public ImportItem (ArrayList<String> users) {
+    public ImportItem (List<String> users) {
         this.users = users;
     }
 }
