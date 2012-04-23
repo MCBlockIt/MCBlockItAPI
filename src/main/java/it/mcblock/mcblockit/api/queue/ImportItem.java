@@ -1,9 +1,9 @@
 package it.mcblock.mcblockit.api.queue;
 
 public class ImportItem extends QueueItem {
-    private final String[] users;
+    private final ArrayList<String> users;
 
-    public ImportItem (String[] users) {
+    public ImportItem (ArrayList<String> users) {
         this.users = users;
     }
 }
