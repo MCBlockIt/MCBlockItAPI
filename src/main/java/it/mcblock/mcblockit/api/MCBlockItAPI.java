@@ -78,7 +78,7 @@ public abstract class MCBlockItAPI implements Runnable {
      *
      * @param names
      */
-    public static void importBans(ArrayList<String> names) {
+    public static void importBans(List<String> names) {
         MCBlockItAPI.instance().queue.add(new ImportItem(names));
     }
 
