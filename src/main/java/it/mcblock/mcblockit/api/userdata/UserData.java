@@ -73,7 +73,7 @@ public class UserData {
     private String username;
     private double reputation;
     private String[] flags;
-
+    private boolean isStaff;
     private BanData[] bans;
 
     /**
@@ -92,6 +92,15 @@ public class UserData {
      */
     public String[] getFlags() {
         return this.flags;
+    }
+
+    /**
+     * Get if the user is MCBlockIt staff
+     *
+     * @return if the user is staff
+     */
+    public boolean isStaff() {
+        return this.isStaff;
     }
 
     /**
