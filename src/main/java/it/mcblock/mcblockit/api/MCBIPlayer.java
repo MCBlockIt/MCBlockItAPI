@@ -20,20 +20,20 @@ package it.mcblock.mcblockit.api;
  *         limitations under the License.
  * 
  */
-public interface MCBIPlayer {
+public abstract class MCBIPlayer {
     /**
      * Get the player's IP
      * 
      * @return the IP address of the player eg. 192.0.0.1
      */
-    public String getIP();
+    public abstract String getIP();
 
     /**
      * Get the player's username
      * 
      * @return the username of the player
      */
-    public String getName();
+    public abstract String getName();
 
     /**
      * Kick the player off the server
@@ -41,7 +41,7 @@ public interface MCBIPlayer {
      * @param reason
      *            Message to display to the player
      */
-    public void kick(String reason);
+    public abstract void kick(String reason);
 
     /**
      * Message the user if they are an admin
@@ -50,9 +50,14 @@ public interface MCBIPlayer {
      * @param message
      *            The messages to send
      */
-    public void messageIfAdmin(String message);
+    public abstract void messageIfAdmin(String message);
 
     @Override
-    public boolean equals(Object player);
+    public boolean equals(Object player) {
+        if (player instanceof MCBIPlayer) {
+            return this.getName().equals(((MCBIPlayer) player).getName());
+        }
+        return false;
+    }
 
 }
