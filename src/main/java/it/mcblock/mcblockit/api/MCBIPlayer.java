@@ -21,6 +21,14 @@ package it.mcblock.mcblockit.api;
  * 
  */
 public abstract class MCBIPlayer {
+    @Override
+    public boolean equals(Object player) {
+        if (player instanceof MCBIPlayer) {
+            return this.getName().equals(((MCBIPlayer) player).getName());
+        }
+        return false;
+    }
+
     /**
      * Get the player's IP
      * 
@@ -51,13 +59,5 @@ public abstract class MCBIPlayer {
      *            The messages to send
      */
     public abstract void messageIfAdmin(String message);
-
-    @Override
-    public boolean equals(Object player) {
-        if (player instanceof MCBIPlayer) {
-            return this.getName().equals(((MCBIPlayer) player).getName());
-        }
-        return false;
-    }
 
 }

@@ -95,15 +95,6 @@ public class UserData {
     }
 
     /**
-     * Get if the user is MCBlockIt staff
-     * 
-     * @return if the user is staff
-     */
-    public boolean isStaff() {
-        return this.isStaff;
-    }
-
-    /**
      * Get the user's calculated reputation
      * 
      * @return the user's calculated reputation
@@ -119,5 +110,14 @@ public class UserData {
      */
     public String getUsername() {
         return this.username;
+    }
+
+    /**
+     * Get if the user is MCBlockIt staff
+     * 
+     * @return if the user is staff
+     */
+    public boolean isStaff() {
+        return this.isStaff;
     }
 }

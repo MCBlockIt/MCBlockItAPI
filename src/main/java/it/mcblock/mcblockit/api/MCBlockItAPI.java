@@ -76,15 +76,6 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     /**
-     * Import bans in String array
-     * 
-     * @param names
-     */
-    public static void importBans(List<String> names) {
-        MCBlockItAPI.instance().queue.add(new ImportItem(names));
-    }
-
-    /**
      * Check if the API is chugging along
      * 
      * @return true if running
@@ -100,6 +91,17 @@ public abstract class MCBlockItAPI implements Runnable {
      */
     public static String getAPIKey() {
         return MCBlockItAPI.instance().APIKey;
+    }
+
+    /**
+     * Retrieve a user's data. Fresh only.
+     * 
+     * @param username
+     *            Username to search.
+     * @return A user's UserData
+     */
+    public static UserData getFreshUserData(String username) {
+        return MCBlockItAPI.instance().getFreshUserDataInstance(username);
     }
 
     /**
@@ -141,14 +143,12 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     /**
-     * Retrieve a user's data. Fresh only.
+     * Import bans in String array
      * 
-     * @param username
-     *            Username to search.
-     * @return A user's UserData
+     * @param names
      */
-    public static UserData getFreshUserData(String username) {
-        return MCBlockItAPI.instance().getFreshUserDataInstance(username);
+    public static void importBans(List<String> names) {
+        MCBlockItAPI.instance().queue.add(new ImportItem(names));
     }
 
     /**
@@ -484,12 +484,12 @@ public abstract class MCBlockItAPI implements Runnable {
         return response.toString();
     }
 
-    protected abstract void shutdown();
+    protected abstract void log(Level level, String message);
 
     protected abstract void log(Level level, String message, Exception exception);
 
-    protected abstract void log(Level level, String message);
-
     protected abstract void log(String message);
+
+    protected abstract void shutdown();
 
 }
