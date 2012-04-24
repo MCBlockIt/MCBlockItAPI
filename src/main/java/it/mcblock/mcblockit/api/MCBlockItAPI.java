@@ -486,7 +486,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     protected abstract void log(Level level, String message);
 
-    protected abstract void log(Level level, String message, Exception exception);
+    protected abstract void log(Level level, String message, Throwable thrown);
 
     protected abstract void log(String message);
 
