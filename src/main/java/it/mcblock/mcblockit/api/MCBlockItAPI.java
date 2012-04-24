@@ -1,6 +1,7 @@
 package it.mcblock.mcblockit.api;
 
 import it.mcblock.mcblockit.api.queue.*;
+import it.mcblock.mcblockit.api.queue.Queue;
 import it.mcblock.mcblockit.api.queue.bancheck.BanCheckReply;
 import it.mcblock.mcblockit.api.userdata.UserData;
 import it.mcblock.mcblockit.api.userdata.UserDataCache;
@@ -8,10 +9,7 @@ import it.mcblock.mcblockit.api.userdata.UserDataCache;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 import com.google.gson.Gson;
@@ -113,13 +111,8 @@ public abstract class MCBlockItAPI implements Runnable {
      */
     public static MCBIPlayer getPlayer(String name) {
         synchronized (MCBlockItAPI.playerSync) {
-            for (final MCBIPlayer player : MCBlockItAPI.instance().players) {
-                if (player.getName().equalsIgnoreCase(name)) {
-                    return player;
-                }
-            }
+            return MCBlockItAPI.instance().players.get(name.toLowerCase());
         }
-        return null;
     }
 
     /**
@@ -127,8 +120,8 @@ public abstract class MCBlockItAPI implements Runnable {
      * 
      * @return the list of players
      */
-    public static List<MCBIPlayer> getPlayers() {
-        return new ArrayList<MCBIPlayer>(MCBlockItAPI.instance().players);
+    public static HashMap<String, MCBIPlayer> getPlayers() {
+        return new HashMap<String, MCBIPlayer>(MCBlockItAPI.instance().players);
     }
 
     /**
@@ -213,17 +206,14 @@ public abstract class MCBlockItAPI implements Runnable {
             return false;
         }
         synchronized (MCBlockItAPI.playerSync) {
-            if (MCBlockItAPI.instance().players.contains(player)) {
-                MCBlockItAPI.instance().players.remove(player);
-            }
-            MCBlockItAPI.instance().players.add(player);
+            MCBlockItAPI.instance().players.put(player.getName().toLowerCase(), player);
         }
         return true;
     }
 
     public static void playerQuit(MCBIPlayer player) {
         synchronized (MCBlockItAPI.playerSync) {
-            MCBlockItAPI.instance().players.remove(player);
+            MCBlockItAPI.instance().players.remove(player.getName().toLowerCase());
         }
     }
 
@@ -249,7 +239,7 @@ public abstract class MCBlockItAPI implements Runnable {
         return MCBlockItAPI.instance;
     }
 
-    private final HashSet<MCBIPlayer> players;
+    private final HashMap<String, MCBIPlayer> players;
 
     private final BanList banList;
 
@@ -278,7 +268,7 @@ public abstract class MCBlockItAPI implements Runnable {
         MCBlockItAPI.initialize(this);
         this.APIKey = APIKey;
         this.APIPost = "API=" + APIKey;
-        this.players = new HashSet<MCBIPlayer>();
+        this.players = new HashMap<String, MCBIPlayer>();
         this.banList = new BanList(dataFolder);
         this.queue = new Queue(dataFolder);
         this.cache = new UserDataCache(dataFolder);
@@ -395,9 +385,10 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     private void messageAdmins(String message) {
-        for (final MCBIPlayer player : MCBlockItAPI.getPlayers()) {
-            this.log(player.getName());
-            player.messageIfAdmin(message);
+        synchronized (MCBlockItAPI.playerSync) {
+            for (final MCBIPlayer player : MCBlockItAPI.getPlayers().values()) {
+                player.messageIfAdmin(message);
+            }
         }
     }
 
@@ -479,7 +470,7 @@ public abstract class MCBlockItAPI implements Runnable {
                     MCBlockItAPI.stop();
                     /*} else if (reply.getStatus() == 418){
                       TODO: I'm a Teapot
-                        */
+                     */
                 }
             } catch (final JsonSyntaxException e) {
             }
