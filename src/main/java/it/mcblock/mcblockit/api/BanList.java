@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
 
 public class BanList {
 
@@ -20,7 +21,7 @@ public class BanList {
                 }
                 output.close();
             } catch (final Exception e) {
-                System.out.println("[MCBlockIt] Error while saving bans list");
+                MCBlockItAPI.logAdd(Level.WARNING, "[MCBlockIt] Error while saving bans list");
                 e.printStackTrace();
             }
         }
@@ -44,12 +45,12 @@ public class BanList {
                         this.bans.add(line.toLowerCase());
                     }
                 }
-                System.out.println("[MCBlockIt] Loaded " + this.bans.size() + " bans");
+                MCBlockItAPI.logAdd("[MCBlockIt] Loaded " + this.bans.size() + " bans");
             } else {
                 this.banList.createNewFile();
             }
         } catch (final Exception e) {
-            System.out.println("[MCBlockIt] Error loading bans list");
+            MCBlockItAPI.logAdd(Level.WARNING, "[MCBlockIt] Error loading bans list");
             e.printStackTrace();
         }
     }

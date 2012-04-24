@@ -1,7 +1,10 @@
 package it.mcblock.mcblockit.api.queue;
 
+import it.mcblock.mcblockit.api.MCBlockItAPI;
+
 import java.io.*;
 import java.util.PriorityQueue;
+import java.util.logging.Level;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -89,8 +92,7 @@ public class Queue extends PriorityQueue<QueueItem> {
                 input.close();
             }
         } catch (final IOException e) {
-            System.out.println("Failed to read " + file);
-            e.printStackTrace();
+            MCBlockItAPI.logAdd(Level.WARNING, "[MCBlockIt] Failed to read" + file, e);
         }
     }
 
@@ -115,8 +117,7 @@ public class Queue extends PriorityQueue<QueueItem> {
             outputUnbans.close();
             outputImport.close();
         } catch (final IOException e) {
-            System.out.println("Failed to write");
-            e.printStackTrace();
+            MCBlockItAPI.logAdd(Level.WARNING, "[MCBlockIt] Failed to write queue", e);
         }
     }
 }

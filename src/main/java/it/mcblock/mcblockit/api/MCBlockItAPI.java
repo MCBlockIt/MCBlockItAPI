@@ -174,6 +174,36 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     /**
+     * Send to log
+     * 
+     * @param level
+     * @param message
+     */
+    public static void logAdd(Level level, String message) {
+        MCBlockItAPI.instance().log(level, message);
+    }
+
+    /**
+     * Send to log
+     * 
+     * @param level
+     * @param message
+     * @param thrown
+     */
+    public static void logAdd(Level level, String message, Throwable thrown) {
+        MCBlockItAPI.instance().log(level, message, thrown);
+    }
+
+    /**
+     * Send to log
+     * 
+     * @param message
+     */
+    public static void logAdd(String message) {
+        MCBlockItAPI.instance().log(message);
+    }
+
+    /**
      * @param player
      * @return true if should be allowed to join
      */
@@ -258,7 +288,7 @@ public abstract class MCBlockItAPI implements Runnable {
             this.currentRevisionId = read.toString();
         } catch (final IOException e) {
             if (this.revisionInfo.exists()) {
-                System.out.println("[MCBlockIt] " + this.revisionInfo.toString() + " - Cannot read from revision storage file! Maybe a file permission error?");
+                this.log(Level.WARNING, "[MCBlockIt] " + this.revisionInfo.toString() + " - Cannot read from revision storage file! Maybe a file permission error?");
             }
         }
     }
@@ -312,8 +342,7 @@ public abstract class MCBlockItAPI implements Runnable {
             }
             reader.close();
         } catch (final Exception e) {
-            System.out.println("Unexpected failure to call MCBlockIt");
-            e.printStackTrace();
+            this.log(Level.WARNING, "[MCBlockIt] Unexpected failure to call API", e);
             return null;
         }
         UserData data = null;
@@ -364,7 +393,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     private void messageAdmins(String message) {
         for (final MCBIPlayer player : MCBlockItAPI.getPlayers()) {
-            System.out.println(player.getName());
+            this.log(player.getName());
             player.messageIfAdmin(message);
         }
     }
@@ -411,7 +440,7 @@ public abstract class MCBlockItAPI implements Runnable {
         } catch (final JsonSyntaxException e) {
             this.processResponse(response);//Error code?
         } catch (final IOException e) {
-            System.out.println("[MCBlockIt] " + this.revisionInfo.toString() + " - Cannot write to revision storage file! Maybe a file permission error?");
+            this.log(Level.WARNING, "[MCBlockIt] " + this.revisionInfo.toString() + " - Cannot write to revision storage file! Maybe a file permission error?");
         }
     }
 
@@ -432,10 +461,10 @@ public abstract class MCBlockItAPI implements Runnable {
                     this.queueStallUntil = timeNow + 1800000;//30 minute delay
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Maintenance!");
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Bans will not update on site for at least 30 mins.");
-                    System.out.println("[MCBlockIt] delaying queue by 30 minutes for maintenance");
+                    this.log("[MCBlockIt] delaying queue by 30 minutes for maintenance");
                     return false;
                 }
-                System.out.println("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
+                this.log("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
                 if (reply.getStatus() == 403) {//You cannot do this
                     return true;
                 } else if (reply.getStatus() == 400) {//Invalid syntax
@@ -477,8 +506,7 @@ public abstract class MCBlockItAPI implements Runnable {
             writer.close();
             reader.close();
         } catch (final Exception e) {
-            System.out.println("Unexpected failure to call MCBlockIt");
-            e.printStackTrace();
+            this.log(Level.WARNING, "[MCBlockIt] Unexpected failure to call API", e);
             return null;
         }
         return response.toString();

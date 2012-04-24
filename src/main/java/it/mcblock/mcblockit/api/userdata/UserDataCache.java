@@ -1,6 +1,9 @@
 package it.mcblock.mcblockit.api.userdata;
 
+import it.mcblock.mcblockit.api.MCBlockItAPI;
+
 import java.io.*;
+import java.util.logging.Level;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -34,7 +37,7 @@ public class UserDataCache {
         if (!this.cacheFolder.exists()) {
             this.cacheFolder.mkdirs();
         } else if (!this.cacheFolder.isDirectory()) {
-            System.out.println("Critical error: " + this.cacheFolder + " is not a directory");
+            MCBlockItAPI.logAdd(Level.SEVERE, "[MCBlockIt] Critical error: " + this.cacheFolder + " is not a directory");
         }
     }
 
@@ -49,8 +52,7 @@ public class UserDataCache {
             output.write(this.gson.toJson(data));
             output.close();
         } catch (final IOException e) {
-            System.out.println("Failed to write " + file);
-            e.printStackTrace();
+            MCBlockItAPI.logAdd(Level.WARNING, "[MCBlockIt] Failed to write" + file, e);
         }
     }
 
@@ -75,8 +77,7 @@ public class UserDataCache {
                 }
                 input.close();
             } catch (final IOException e) {
-                System.out.println("Failed to read " + file);
-                e.printStackTrace();
+                MCBlockItAPI.logAdd(Level.WARNING, "[MCBlockIt] Failed to read" + file, e);
             }
             try {
                 data = this.gson.fromJson(builder.toString(), UserData.class);
