@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -214,7 +215,7 @@ public abstract class MCBlockItAPI implements Runnable {
         return MCBlockItAPI.instance;
     }
 
-    private final ArrayList<MCBIPlayer> players;
+    private final HashSet<MCBIPlayer> players;
 
     private final BanList banList;
 
@@ -241,7 +242,7 @@ public abstract class MCBlockItAPI implements Runnable {
     public MCBlockItAPI(String APIKey, File dataFolder) {
         this.APIKey = APIKey;
         this.APIPost = "API=" + APIKey;
-        this.players = new ArrayList<MCBIPlayer>();
+        this.players = new HashSet<MCBIPlayer>();
         this.banList = new BanList(dataFolder);
         this.queue = new Queue(dataFolder);
         this.cache = new UserDataCache(dataFolder);

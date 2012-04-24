@@ -51,4 +51,8 @@ public interface MCBIPlayer {
      *            The messages to send
      */
     public void messageIfAdmin(String message);
+
+    @Override
+    public boolean equals(Object player);
+
 }
