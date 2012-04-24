@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Level;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -484,5 +485,11 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     protected abstract void shutdown();
+
+    protected abstract void log(Level level, String message, Exception exception);
+
+    protected abstract void log(Level level, String message);
+
+    protected abstract void log(String message);
 
 }
