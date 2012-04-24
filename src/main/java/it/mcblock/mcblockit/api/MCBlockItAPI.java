@@ -360,6 +360,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     private void messageAdmins(String message) {
         for (final MCBIPlayer player : MCBlockItAPI.getPlayers()) {
+            System.out.println(player.getName());
             player.messageIfAdmin(message);
         }
     }
