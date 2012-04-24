@@ -156,7 +156,7 @@ public abstract class MCBlockItAPI implements Runnable {
      * 
      * @param api
      */
-    public static void initialize(MCBlockItAPI api) {
+    private static void initialize(MCBlockItAPI api) {
         MCBlockItAPI.instance = api;
         MCBlockItAPI.thread = new Thread(api);
         MCBlockItAPI.thread.start();
@@ -274,6 +274,8 @@ public abstract class MCBlockItAPI implements Runnable {
     private final UserDataCache cache;
 
     public MCBlockItAPI(String APIKey, File dataFolder) {
+        this.queueStallUntil = Long.MAX_VALUE;
+        MCBlockItAPI.initialize(this);
         this.APIKey = APIKey;
         this.APIPost = "API=" + APIKey;
         this.players = new HashSet<MCBIPlayer>();
@@ -291,6 +293,7 @@ public abstract class MCBlockItAPI implements Runnable {
                 this.log(Level.WARNING, "[MCBlockIt] " + this.revisionInfo.toString() + " - Cannot read from revision storage file! Maybe a file permission error?");
             }
         }
+        this.queueStallUntil = 0;
     }
 
     /**
