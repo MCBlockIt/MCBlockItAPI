@@ -44,7 +44,7 @@ public class Queue extends PriorityQueue<QueueItem> {
         this.unbanQueue = new File(queueFolder, "unbans");
         this.load(this.unbanQueue, UnbanItem.class);
         this.importQueue = new File(queueFolder, "import");
-        this.load(this.importQueue,ImportItem.class);
+        this.load(this.importQueue, ImportItem.class);
     }
 
     @Override

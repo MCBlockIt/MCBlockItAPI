@@ -96,7 +96,7 @@ public class UserData {
 
     /**
      * Get if the user is MCBlockIt staff
-     *
+     * 
      * @return if the user is staff
      */
     public boolean isStaff() {

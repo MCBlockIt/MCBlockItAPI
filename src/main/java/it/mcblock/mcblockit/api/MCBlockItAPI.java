@@ -76,7 +76,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     /**
      * Import bans in String array
-     *
+     * 
      * @param names
      */
     public static void importBans(List<String> names) {
@@ -141,7 +141,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
     /**
      * Retrieve a user's data. Fresh only.
-     *
+     * 
      * @param username
      *            Username to search.
      * @return A user's UserData
