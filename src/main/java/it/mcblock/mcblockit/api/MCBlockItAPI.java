@@ -182,6 +182,9 @@ public abstract class MCBlockItAPI implements Runnable {
             return false;
         }
         synchronized (MCBlockItAPI.playerSync) {
+            if (MCBlockItAPI.instance().players.contains(player)) {
+                MCBlockItAPI.instance().players.remove(player);
+            }
             MCBlockItAPI.instance().players.add(player);
         }
         return true;
