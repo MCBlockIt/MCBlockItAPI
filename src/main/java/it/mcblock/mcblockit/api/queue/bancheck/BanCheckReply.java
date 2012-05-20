@@ -20,7 +20,7 @@ package it.mcblock.mcblockit.api.queue.bancheck;
  *         limitations under the License.
  */
 public class BanCheckReply {
-    public String revisionID;
+    public String timestamp;
     public String[] bans;
     public String[] unbans;
 }
