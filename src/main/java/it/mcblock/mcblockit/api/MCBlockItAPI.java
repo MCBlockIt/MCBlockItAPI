@@ -292,6 +292,7 @@ public abstract class MCBlockItAPI implements Runnable {
      * @return the configuration
      */
     public abstract MCBIConfig getConfig();
+    public abstract String getVersion();
 
     @Override
     public void run() {
