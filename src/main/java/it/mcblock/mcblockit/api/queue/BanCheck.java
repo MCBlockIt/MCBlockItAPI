@@ -23,9 +23,9 @@ package it.mcblock.mcblockit.api.queue;
 @SuppressWarnings("unused")
 public class BanCheck extends QueueItem {
 
-    private final String revisionID;
+    private final String timestamp;
 
-    public BanCheck(String revisionID) {
-        this.revisionID = revisionID;
+    public BanCheck(String timestamp) {
+        this.timestamp = timestamp;
     }
 }

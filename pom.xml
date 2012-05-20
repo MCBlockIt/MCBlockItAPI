@@ -29,15 +29,10 @@
 
     <distributionManagement>
         <repository>
-            <id>crashCraftReleases</id>
-            <name>CrashCraft Releases</name>
-            <url>http://neko.crashcraft.co.uk:8081/nexus/content/repositories/releases</url>
+            <id>Doridian</id>
+            <name>Doridian Repo</name>
+            <url>http://repo.doridian.de/content/repositories/bamboo/</url>
         </repository>
-        <snapshotRepository>
-            <id>crashCraftSnapshots</id>
-            <name>CrashCraft Snapshots</name>
-            <url>http://neko.crashcraft.co.uk:8081/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <build>

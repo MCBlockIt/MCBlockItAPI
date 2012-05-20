@@ -257,7 +257,7 @@ public abstract class MCBlockItAPI implements Runnable {
     private final String userdataURL = this.URL + "userdata/";
 
     private final File revisionInfo;
-    private String currentRevisionId = "0";
+    private String currentRevisionTimestamp = "0";
     private Long lastBanCheck = 0L;
 
     private final Gson gsonCompact;
@@ -277,7 +277,7 @@ public abstract class MCBlockItAPI implements Runnable {
 
         try {
             final FileReader read = new FileReader(this.revisionInfo);
-            this.currentRevisionId = read.toString();
+            this.currentRevisionTimestamp = read.toString();
         } catch (final IOException e) {
             if (this.revisionInfo.exists()) {
                 this.log(Level.WARNING, "[MCBlockIt] " + this.revisionInfo.toString() + " - Cannot read from revision storage file! Maybe a file permission error?");
@@ -301,7 +301,7 @@ public abstract class MCBlockItAPI implements Runnable {
                 final long time = (new Date()).getTime();
                 if (time > this.queueStallUntil) {
                     if ((time - this.lastBanCheck) > 1200000) {
-                        item = new BanCheck(this.currentRevisionId);//lol it doesn't even need to be added
+                        item = new BanCheck(this.currentRevisionTimestamp);//lol it doesn't even need to be added
                         this.lastBanCheck = time;
                     } else {
                         item = this.queue.peek();
@@ -426,10 +426,10 @@ public abstract class MCBlockItAPI implements Runnable {
                     this.banList.addBan(name);
                 }
             }
-            this.currentRevisionId = reply.revisionID;
+            this.currentRevisionTimestamp = reply.timestamp;
             final FileWriter write = new FileWriter(this.revisionInfo);
             final PrintWriter out = new PrintWriter(write);
-            out.print(reply.revisionID);
+            out.print(reply.timestamp);
             out.close();
         } catch (final JsonSyntaxException e) {
             this.processResponse(response);//Error code?
@@ -487,7 +487,7 @@ public abstract class MCBlockItAPI implements Runnable {
             connection.setDoOutput(true);
             connection.setConnectTimeout(6000);
             connection.setReadTimeout(9000);
-            connection.setRequestProperty("User-agent", "MCBlockIt");
+            connection.setRequestProperty("User-agent", "MCBlockIt-" + this.getVersion());
             final OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             writer.write(POST);
             writer.flush();
