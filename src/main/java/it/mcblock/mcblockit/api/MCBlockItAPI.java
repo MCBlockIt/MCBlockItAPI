@@ -98,13 +98,13 @@ public abstract class MCBlockItAPI implements Runnable {
                 calcTime = Long.valueOf(time.split("d")[0]) * 86400;
                 timePhrase = "day";
             } else if (time.contains("h")) {
-                calcTime = Long.valueOf(time.split("h")[0]) * 86400;
+                calcTime = Long.valueOf(time.split("h")[0]) * 3600;
                 timePhrase = "hour";
             } else if (time.contains("m")) {
-                calcTime = Long.valueOf(time.split("m")[0]) * 86400;
+                calcTime = Long.valueOf(time.split("m")[0]) * 60;
                 timePhrase = "minute";
             } else if (time.contains("s")) {
-                calcTime = Long.valueOf(time.split("s")[0]) * 86400;
+                calcTime = Long.valueOf(time.split("s")[0]);
                 timePhrase = "second";
             } else return false;
         } catch (NumberFormatException ex) {

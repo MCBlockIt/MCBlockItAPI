@@ -86,12 +86,6 @@ public class BanList {
     public void delBan(String name) {
         synchronized (this.sync) {
             this.bans.remove(name.toLowerCase());
-        }
-        this.save();
-    }
-
-    public void delTempBan(String name) {
-        synchronized (this.sync) {
             this.tempBans.remove(name.toLowerCase());
         }
         this.save();
@@ -107,7 +101,7 @@ public class BanList {
             return null;
         }
 
-        Date datum = new Date(timestamp * 1000);
+        Date datum = new Date(timestamp);
         SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
         return dfm.format(datum);
