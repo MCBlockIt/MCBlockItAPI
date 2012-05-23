@@ -101,7 +101,9 @@ public class BanList {
             return null;
         }
 
-        java.util.Date d = new java.util.Date((timestamp * 1000) + "L");
+        String expires = (this.tempBans.get(username.toLowerCase()) * 1000) + "L";
+
+        java.util.Date d = new java.util.Date(expires);
 
         return d.toString();
     }
