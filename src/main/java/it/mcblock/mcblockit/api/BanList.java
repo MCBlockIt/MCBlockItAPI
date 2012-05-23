@@ -103,7 +103,7 @@ public class BanList {
             return null;
         }
 
-        String expires = (this.tempBans.get(username.toLowerCase()) * 1000) + "L";
+        String expires = String.valueOf(this.tempBans.get(username.toLowerCase()) * 1000);
 
         DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss z");
         Date date;
