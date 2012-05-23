@@ -48,7 +48,7 @@ public abstract class MCBlockItAPI implements Runnable {
     /**
      * Use this value when kicking a user off the server for being temporarily banned.
      */
-    public static final String KICK_REASON_TEMP_BANNED = "      " + Utils.COLOR_CHAR + "cTemporarily Banned. " + Utils.COLOR_CHAR + "fExpires in ";
+    public static final String KICK_REASON_TEMP_BANNED = "      " + Utils.COLOR_CHAR + "cTemporarily Banned. " + Utils.COLOR_CHAR + "fExpires ";
 
     private static MCBlockItAPI instance;
     private static Object playerSync = new Object();
@@ -119,7 +119,7 @@ public abstract class MCBlockItAPI implements Runnable {
         MCBlockItAPI.instance();
         final MCBIPlayer player = MCBlockItAPI.getPlayer(name);
         if (player != null) {
-            player.kick(MCBlockItAPI.KICK_REASON_TEMP_BANNED + goodTime + " " + (goodTime != 1 ? timePhrase + "s" : timePhrase));
+            player.kick(MCBlockItAPI.KICK_REASON_TEMP_BANNED + "in " + goodTime + " " + (goodTime != 1 ? timePhrase + "s" : timePhrase));
         }
         MCBlockItAPI.instance().banList.addTempBan(name, timestamp + calcTime);
         MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been temporarily banned [" + calcTime + " " + (calcTime != 1 ? timePhrase + "s" : timePhrase) + " (" + admin + ")]");
