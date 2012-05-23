@@ -44,7 +44,11 @@ public abstract class MCBlockItAPI implements Runnable {
     /**
      * Use this value when kicking a user off the server for being blocked for other reasons.
      */
-    public static final String KICK_REASON_BLOCKED = "      " + Utils.COLOR_CHAR + "cBlocked by MCBlockIt. " + Utils.COLOR_CHAR + "fMore info at http://blocked.mcblock.it";
+    public static final String KICK_REASON_BLOCKED = "      " + Utils.COLOR_CHAR + "cBlocked by MCBlockIt. " + Utils.COLOR_CHAR + "fMore info at http://roadblock.mcblock.it";
+    /**
+     * Use this value when kicking a user off the server for being temporarily banned.
+     */
+    public static final String KICK_REASON_TEMP_BANNED = "      " + Utils.COLOR_CHAR + "cTemporarily Banned. " + Utils.COLOR_CHAR + "fExpires ";
 
     private static MCBlockItAPI instance;
     private static Object playerSync = new Object();
@@ -71,6 +75,50 @@ public abstract class MCBlockItAPI implements Runnable {
         }
         MCBlockItAPI.instance().banList.addBan(name);
         MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been banned [" + reason + " (" + type.toString() + ")]");
+    }
+
+    /**
+     * Temporarily ban a user
+     *
+     * @param name
+     *            Name to be banned
+     * @param admin
+     *            Name of admin banning the user
+     * @param time
+     *            Length of ban
+     *
+     * @return true if successful, false if failed
+     */
+    public static boolean tempBan(String name, String admin, String time) {
+        long timestamp = (new Date()).getTime() / 1000;
+        long calcTime = 0;
+        String timePhrase = "";
+        try {
+            if (time.contains("d")) {
+                calcTime = Long.valueOf(time.split("d")[0]) * 86400;
+                timePhrase = "day";
+            } else if (time.contains("h")) {
+                calcTime = Long.valueOf(time.split("h")[0]) * 86400;
+                timePhrase = "hour";
+            } else if (time.contains("m")) {
+                calcTime = Long.valueOf(time.split("m")[0]) * 86400;
+                timePhrase = "minute";
+            } else if (time.contains("s")) {
+                calcTime = Long.valueOf(time.split("s")[0]) * 86400;
+                timePhrase = "second";
+            } else return false;
+        } catch (NumberFormatException ex) {
+            // Someone was naughty and didn't listen to the formatting :<
+            return false;
+        }
+        MCBlockItAPI.instance();
+        final MCBIPlayer player = MCBlockItAPI.getPlayer(name);
+        if (player != null) {
+            player.kick(MCBlockItAPI.KICK_REASON_TEMP_BANNED + calcTime + " " + (calcTime != 1 ? timePhrase + "s" : timePhrase));
+        }
+        MCBlockItAPI.instance().banList.addTempBan(name, timestamp + calcTime);
+        MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been temporarily banned [" + calcTime + " " + (calcTime != 1 ? timePhrase + "s" : timePhrase) + " (" + admin + ")]");
+        return true;
     }
 
     /**
@@ -164,6 +212,17 @@ public abstract class MCBlockItAPI implements Runnable {
      */
     public static boolean isBanned(String username) {
         return MCBlockItAPI.instance().banList.isBanned(username);
+    }
+
+    /**
+     * Check if a username is banned
+     *
+     * @param username
+     *            Username to search
+     * @return true if the user is banned
+     */
+    public static String isTempBanned(String username) {
+        return MCBlockItAPI.instance().banList.isTempBanned(username);
     }
 
     /**
