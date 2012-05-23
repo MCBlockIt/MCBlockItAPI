@@ -48,7 +48,7 @@ public abstract class MCBlockItAPI implements Runnable {
     /**
      * Use this value when kicking a user off the server for being temporarily banned.
      */
-    public static final String KICK_REASON_TEMP_BANNED = "      " + Utils.COLOR_CHAR + "cTemporarily Banned. " + Utils.COLOR_CHAR + "fExpires ";
+    public static final String KICK_REASON_TEMP_BANNED = "      " + Utils.COLOR_CHAR + "cTemporarily Banned. " + Utils.COLOR_CHAR + "fExpires in ";
 
     private static MCBlockItAPI instance;
     private static Object playerSync = new Object();
