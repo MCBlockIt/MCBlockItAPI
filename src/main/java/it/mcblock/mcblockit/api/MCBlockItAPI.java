@@ -92,19 +92,24 @@ public abstract class MCBlockItAPI implements Runnable {
     public static boolean tempBan(String name, String admin, String time) {
         long timestamp = (new Date()).getTime() / 1000;
         long calcTime = 0;
+        long goodTime = 0;
         String timePhrase = "";
         try {
             if (time.contains("d")) {
-                calcTime = Long.valueOf(time.split("d")[0]) * 86400;
+                goodTime = Long.valueOf(time.split("d")[0]);
+                calcTime = goodTime * 86400;
                 timePhrase = "day";
             } else if (time.contains("h")) {
-                calcTime = Long.valueOf(time.split("h")[0]) * 3600;
+                goodTime = Long.valueOf(time.split("h")[0]);
+                calcTime = goodTime * 3600;
                 timePhrase = "hour";
             } else if (time.contains("m")) {
-                calcTime = Long.valueOf(time.split("m")[0]) * 60;
+                goodTime = Long.valueOf(time.split("m")[0]);
+                calcTime = goodTime * 60;
                 timePhrase = "minute";
             } else if (time.contains("s")) {
-                calcTime = Long.valueOf(time.split("s")[0]);
+                goodTime = Long.valueOf(time.split("s")[0]);
+                calcTime = goodTime;
                 timePhrase = "second";
             } else return false;
         } catch (NumberFormatException ex) {
@@ -114,7 +119,7 @@ public abstract class MCBlockItAPI implements Runnable {
         MCBlockItAPI.instance();
         final MCBIPlayer player = MCBlockItAPI.getPlayer(name);
         if (player != null) {
-            player.kick(MCBlockItAPI.KICK_REASON_TEMP_BANNED + calcTime + " " + (calcTime != 1 ? timePhrase + "s" : timePhrase));
+            player.kick(MCBlockItAPI.KICK_REASON_TEMP_BANNED + goodTime + " " + (goodTime != 1 ? timePhrase + "s" : timePhrase));
         }
         MCBlockItAPI.instance().banList.addTempBan(name, timestamp + calcTime);
         MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been temporarily banned [" + calcTime + " " + (calcTime != 1 ? timePhrase + "s" : timePhrase) + " (" + admin + ")]");
