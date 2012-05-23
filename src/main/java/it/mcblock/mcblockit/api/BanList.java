@@ -103,18 +103,11 @@ public class BanList {
             return null;
         }
 
-        String expires = String.valueOf(this.tempBans.get(username.toLowerCase()) * 1000);
+        long expires = this.tempBans.get(username.toLowerCase()) * 1000;
 
-        DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss z");
-        Date date;
-        try {
-            date = format.parse(expires);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss z");
 
-        return date.toString();
+        return dateFormat.format(new Date(expires));
     }
 
     public boolean isBanned(String username) {
