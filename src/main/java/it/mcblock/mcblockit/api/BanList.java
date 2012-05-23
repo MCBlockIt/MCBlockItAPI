@@ -101,10 +101,9 @@ public class BanList {
             return null;
         }
 
-        Date datum = new Date(timestamp);
-        SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        java.util.Date d = new java.util.Date(timestamp * 1000);
 
-        return dfm.format(datum);
+        return d.toString();
     }
 
     public boolean isBanned(String username) {
