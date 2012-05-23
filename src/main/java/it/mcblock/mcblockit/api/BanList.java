@@ -1,6 +1,8 @@
 package it.mcblock.mcblockit.api;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
@@ -103,9 +105,16 @@ public class BanList {
 
         String expires = (this.tempBans.get(username.toLowerCase()) * 1000) + "L";
 
-        java.util.Date d = new java.util.Date(expires);
+        DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss z");
+        Date date;
+        try {
+            date = format.parse(expires);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
 
-        return d.toString();
+        return date.toString();
     }
 
     public boolean isBanned(String username) {
