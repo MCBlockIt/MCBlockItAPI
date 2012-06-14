@@ -31,7 +31,7 @@
         <repository>
             <id>mcblockItSnapshots</id>
             <name>MCBlockIt Snapshots</name>
-            <url>http://repo.doridian.de/content/groups/public</url>
+            <url>http://repo.doridian.de/content/repositories/snapshots</url>
         </repository>
     </distributionManagement>
 
