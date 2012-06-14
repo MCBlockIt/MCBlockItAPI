@@ -69,6 +69,8 @@ public abstract class MCBlockItAPI implements Runnable {
     public static void ban(String name, String admin, BanType type, String reason) {
         if (isBanned(name) || isTempBanned(name) != null) {
             MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has already been banned!");
+            MCBlockItAPI.instance().log(Level.INFO, "[MCBlockIt] " + admin + " attempted to ban " + name + ", but they are already banned.");
+            return;
         }
         MCBlockItAPI.instance().queue.add(new BanItem(name, admin, type.id(), reason));
         MCBlockItAPI.instance();
@@ -78,6 +80,7 @@ public abstract class MCBlockItAPI implements Runnable {
         }
         MCBlockItAPI.instance().banList.addBan(name);
         MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been banned [" + reason + " (" + type.toString() + ")]");
+        MCBlockItAPI.instance().log(Level.INFO, "[MCBlockIt] " + admin + " has banned " + name + " for " + reason + " (" + type.toString() + ")");
     }
 
     /**
@@ -109,6 +112,7 @@ public abstract class MCBlockItAPI implements Runnable {
     public static boolean tempBan(String name, String admin, String time) {
         if (isBanned(name) || isTempBanned(name) != null) {
             MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has already been banned!");
+            MCBlockItAPI.instance().log(Level.INFO, "[MCBlockIt] " + admin + " attempted to temporarily ban " + name + ", but they are already banned.");
             return true;
         }
         long timestamp = (new Date()).getTime() / 1000;
@@ -144,6 +148,7 @@ public abstract class MCBlockItAPI implements Runnable {
         }
         MCBlockItAPI.instance().banList.addTempBan(name, timestamp + calcTime);
         MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been temporarily banned [" + calcTime + " " + (calcTime != 1 ? timePhrase + "s" : timePhrase) + " (" + admin + ")]");
+        MCBlockItAPI.instance().log(Level.INFO, "[MCBlockIt] " + admin + " has temporarily banned " + name + " for " + calcTime + " " + (calcTime != 1 ? timePhrase + "s" : timePhrase));
         return true;
     }
 
@@ -321,8 +326,10 @@ public abstract class MCBlockItAPI implements Runnable {
         if (MCBlockItAPI.instance().banList.isBanned(name) || MCBlockItAPI.instance().banList.isTempBanned(name) != null) {
             MCBlockItAPI.instance().banList.delBan(name);
             MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been unbanned.");
+            MCBlockItAPI.instance().log(Level.INFO, "[MCBlockIt] " + name + " has been unbanned.");
         } else {
             MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " is not banned.");
+            MCBlockItAPI.instance().log(Level.INFO, "[MCBlockIt] " + name + " is not banned.");
         }
     }
 
@@ -567,7 +574,7 @@ public abstract class MCBlockItAPI implements Runnable {
                     this.queueStallUntil = timeNow + 1800000;//30 minute delay
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Maintenance!");
                     this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Bans will not update on site for at least 30 mins.");
-                    this.log("[MCBlockIt] delaying queue by 30 minutes for maintenance");
+                    this.log("[MCBlockIt] Delaying queue by 30 minutes for maintenance");
                     return false;
                 }
                 this.log("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
