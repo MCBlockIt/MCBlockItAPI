@@ -67,6 +67,9 @@ public abstract class MCBlockItAPI implements Runnable {
      *            Reason for the ban
      */
     public static void ban(String name, String admin, BanType type, String reason) {
+        if (isBanned(name) || isTempBanned(name) != null) {
+            MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has already been banned!");
+        }
         MCBlockItAPI.instance().queue.add(new BanItem(name, admin, type.id(), reason));
         MCBlockItAPI.instance();
         final MCBIPlayer player = MCBlockItAPI.getPlayer(name);
@@ -75,6 +78,20 @@ public abstract class MCBlockItAPI implements Runnable {
         }
         MCBlockItAPI.instance().banList.addBan(name);
         MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been banned [" + reason + " (" + type.toString() + ")]");
+    }
+
+    /**
+     * Ban a user with default reason
+     *
+     * @param name
+     *            Name to be banned
+     * @param admin
+     *            Name of admin banning the user
+     * @param type
+     *            Type of ban
+     */
+    public static void ban(String name, String admin, BanType type) {
+        ban(name, admin, type, MCBlockItAPI.instance().getConfig().getDefaultBanReason());
     }
 
     /**
@@ -90,6 +107,10 @@ public abstract class MCBlockItAPI implements Runnable {
      * @return true if successful, false if failed
      */
     public static boolean tempBan(String name, String admin, String time) {
+        if (isBanned(name) || isTempBanned(name) != null) {
+            MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has already been banned!");
+            return true;
+        }
         long timestamp = (new Date()).getTime() / 1000;
         long calcTime = 0;
         long goodTime = 0;
@@ -272,6 +293,11 @@ public abstract class MCBlockItAPI implements Runnable {
         synchronized (MCBlockItAPI.playerSync) {
             MCBlockItAPI.instance().players.put(player.getName().toLowerCase(), player);
         }
+        UserData userData = MCBlockItAPI.getUserData(player.getName());
+        player.sendMessage(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f You have " + userData.getBans().length + " global bans and " + userData.getFlags().length);
+        if (MCBlockItAPI.instance().getConfig().isLoginNotificationEnabled() && (userData.getBans().length > 0 || userData.getFlags().length > 0)) {
+            MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + player.getName() + " has " + userData.getBans().length + " global bans and " + userData.getFlags().length);
+        }
         return true;
     }
 
@@ -292,8 +318,12 @@ public abstract class MCBlockItAPI implements Runnable {
 
     public static void unban(String name) {
         MCBlockItAPI.instance().queue.add(new UnbanItem(name));
-        MCBlockItAPI.instance().banList.delBan(name);
-        MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been unbanned.");
+        if (MCBlockItAPI.instance().banList.isBanned(name) || MCBlockItAPI.instance().banList.isTempBanned(name) != null) {
+            MCBlockItAPI.instance().banList.delBan(name);
+            MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been unbanned.");
+        } else {
+            MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " is not banned.");
+        }
     }
 
     private static MCBlockItAPI instance() {
@@ -304,6 +334,7 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     private final HashMap<String, MCBIPlayer> players;
+    private final HashMap<String, String> userIPlist;
 
     private final BanList banList;
 
@@ -319,10 +350,12 @@ public abstract class MCBlockItAPI implements Runnable {
     private final String unbanURL = this.URL + "unban";
     private final String importURL = this.URL + "import";
     private final String userdataURL = this.URL + "userdata/";
+    private final String userInfoURL = this.URL + "submitinfo";
 
     private final File revisionInfo;
     private String currentRevisionTimestamp = "0";
     private Long lastBanCheck = 0L;
+    private Long lastInfoSubmit = 0L;
 
     private final Gson gsonCompact;
     private final UserDataCache cache;
@@ -333,6 +366,7 @@ public abstract class MCBlockItAPI implements Runnable {
         this.APIKey = APIKey;
         this.APIPost = "API=" + APIKey;
         this.players = new HashMap<String, MCBIPlayer>();
+        this.userIPlist = new HashMap<String, String>();
         this.banList = new BanList(dataFolder);
         this.queue = new Queue(dataFolder);
         this.cache = new UserDataCache(dataFolder);
@@ -365,6 +399,13 @@ public abstract class MCBlockItAPI implements Runnable {
             while (true) {
                 final long time = (new Date()).getTime();
                 if (time > this.queueStallUntil) {
+                    if ((time - this.lastInfoSubmit) > 60000 && this.getConfig().isUserIPRecordingEnabled()) {
+                        if (this.userIPlist.size() > 0) {
+                            this.queue.add(new UserIPItem(this.userIPlist));
+                            this.userIPlist.clear();
+                        }
+                        this.lastInfoSubmit = time;
+                    }
                     if ((time - this.lastBanCheck) > 1200000) {
                         item = new BanCheck(this.currentRevisionTimestamp);//lol it doesn't even need to be added
                         this.lastBanCheck = time;
@@ -446,6 +487,9 @@ public abstract class MCBlockItAPI implements Runnable {
         if (config.isReputationRestrictionEnabled() && (data.getReputation() <= config.getReputationRestriction())) {
             return false;
         }
+        if (!this.userIPlist.containsKey(player.getName()) && config.isUserIPRecordingEnabled()) {
+            this.userIPlist.put(player.getName(), player.getIP());
+        }
         return true;
     }
 
@@ -454,6 +498,7 @@ public abstract class MCBlockItAPI implements Runnable {
             for (final MCBIPlayer player : MCBlockItAPI.getPlayers().values()) {
                 player.messageIfAdmin(message);
             }
+            this.log(Level.INFO, "[MCBlockIt] " + message);
         }
     }
 
@@ -467,6 +512,8 @@ public abstract class MCBlockItAPI implements Runnable {
             url = this.banCheckURL;
         } else if (item instanceof ImportItem) {
             url = this.importURL;
+        } else if (item instanceof UserIPItem) {
+            url = this.userInfoURL;
         } else {
             return true;//Dump whatever this is.
         }

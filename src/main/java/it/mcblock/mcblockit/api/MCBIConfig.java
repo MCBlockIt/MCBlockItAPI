@@ -24,6 +24,13 @@ import java.util.List;
  */
 public interface MCBIConfig {
     /**
+     * Get the default ban reason
+     *
+     * @return default ban reason
+     */
+    public String getDefaultBanReason();
+
+    /**
      * Get the ban count restriction.
      * If enabled, users with this many bans or higher will be blocked.
      * 
@@ -75,4 +82,18 @@ public interface MCBIConfig {
      * @return true if reputation restrictions are enabled
      */
     public boolean isReputationRestrictionEnabled();
+
+    /**
+     * Check if user/IP recording is enabled
+     *
+     * @return true if user/IP recording is enabled
+     */
+    public boolean isUserIPRecordingEnabled();
+
+    /**
+     * Check if notifying admins about a user's record on join is enabled
+     *
+     * @return true if notification is enabled
+     */
+    public boolean isLoginNotificationEnabled();
 }

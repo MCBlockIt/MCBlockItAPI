@@ -75,6 +75,7 @@ public class UserData {
     private String[] flags;
     private boolean isStaff;
     private BanData[] bans;
+    private String[] altAccounts;
 
     /**
      * Get the user's bans
@@ -83,6 +84,15 @@ public class UserData {
      */
     public BanData[] getBans() {
         return this.bans;
+    }
+
+    /**
+     * Get the user's alternate accounts
+     *
+     * @return the user's alternate accounts
+     */
+    public String[] getAltAccounts() {
+        return this.altAccounts;
     }
 
     /**

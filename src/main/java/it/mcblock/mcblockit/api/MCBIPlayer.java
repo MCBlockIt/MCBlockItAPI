@@ -60,4 +60,12 @@ public abstract class MCBIPlayer {
      */
     public abstract void messageIfAdmin(String message);
 
+    /**
+     * Message the user regardless of permissions
+     *
+     * @param message
+     *            The messages to send
+     */
+    public abstract void sendMessage(String message);
+
 }
