@@ -29,9 +29,9 @@
 
     <distributionManagement>
         <repository>
-            <id>Doridian</id>
-            <name>Doridian Repo</name>
-            <url>http://repo.doridian.de/content/repositories/bamboo/</url>
+            <id>mcblockitapi</id>
+            <name>MCBlockIt API Snapshots</name>
+            <url>http://repo.doridian.de/content/groups/public</url>
         </repository>
     </distributionManagement>
 
