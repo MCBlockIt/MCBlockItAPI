@@ -13,9 +13,9 @@
     </properties>
 
     <scm>
-        <developerConnection>scm:git:git@github.com:MCBlockIt/mcBLOCKIT.git</developerConnection>
-        <connection>scm:git:git://github.com/MCBlockIt/mcBLOCKIT.git</connection>
-        <url>https://github.com/mcBLOCKIT/MCBlockIt</url>
+        <developerConnection>scm:git:git@github.com:MCBlockIt/MCBlockIt.git</developerConnection>
+        <connection>scm:git:git://github.com/MCBlockIt/MCBlockIt.git</connection>
+        <url>https://github.com/MCBlockIt/MCBlockIt</url>
     </scm>
     
     <dependencies>
