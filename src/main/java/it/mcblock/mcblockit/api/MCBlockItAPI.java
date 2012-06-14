@@ -303,6 +303,10 @@ public abstract class MCBlockItAPI implements Runnable {
         if (MCBlockItAPI.instance().getConfig().isLoginNotificationEnabled() && (userData.getBans().length > 0 || userData.getFlags().length > 0)) {
             MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + player.getName() + " has " + userData.getBans().length + " global bans and " + userData.getFlags().length);
         }
+        if (Arrays.asList(userData.getFlags()).contains("GLD")) {
+            player.sendMessage(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + FlagType.GLD.getDescription());
+            player.sendMessage("Please see http://roadblock.mcblock.it for more information.");
+        }
         return true;
     }
 
