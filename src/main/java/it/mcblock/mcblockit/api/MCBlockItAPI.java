@@ -55,6 +55,18 @@ public abstract class MCBlockItAPI implements Runnable {
     private static Thread thread;
 
     /**
+     * Add a user/ip pair to tracking (if enabled)
+     * 
+     * @param name
+     *           User's name
+     * @param ip
+     *           User's ip
+     */
+    public static void addUserIPPair(String name, String ip) {
+        MCBlockItAPI.instance().addUserIP(name, ip);
+    }
+
+    /**
      * Ban a user
      * 
      * @param name
@@ -436,6 +448,12 @@ public abstract class MCBlockItAPI implements Runnable {
         }
     }
 
+    private void addUserIP(String name, String ip) {
+        if (!this.userIPlist.containsKey(name) && this.getConfig().isUserIPRecordingEnabled()) {
+            this.userIPlist.put(name, ip);
+        }
+    }
+
     private UserData getFreshUserDataInstance(String username) {
         final StringBuilder response = new StringBuilder();
         try {
@@ -497,9 +515,6 @@ public abstract class MCBlockItAPI implements Runnable {
         }
         if (config.isReputationRestrictionEnabled() && (data.getReputation() <= config.getReputationRestriction())) {
             return false;
-        }
-        if (!this.userIPlist.containsKey(player.getName()) && config.isUserIPRecordingEnabled()) {
-            this.userIPlist.put(player.getName(), player.getIP());
         }
         return true;
     }
