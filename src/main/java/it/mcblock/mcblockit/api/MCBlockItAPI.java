@@ -311,9 +311,9 @@ public abstract class MCBlockItAPI implements Runnable {
             MCBlockItAPI.instance().players.put(player.getName().toLowerCase(), player);
         }
         UserData userData = MCBlockItAPI.getUserData(player.getName());
-        player.sendMessage(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f You have " + userData.getBans().length + " global bans and " + userData.getFlags().length);
+        player.sendMessage(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f You have " + userData.getBans().length + " global ban(s) and " + userData.getFlags().length + " flag(s)");
         if (MCBlockItAPI.instance().getConfig().isLoginNotificationEnabled() && (userData.getBans().length > 0 || userData.getFlags().length > 0)) {
-            MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + player.getName() + " has " + userData.getBans().length + " global bans and " + userData.getFlags().length);
+            MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + player.getName() + " has " + userData.getBans().length + " global ban(s) and " + userData.getFlags().length + " flag(s)");
         }
         if (Arrays.asList(userData.getFlags()).contains("GLD")) {
             player.sendMessage(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + FlagType.GLD.getDescription());
