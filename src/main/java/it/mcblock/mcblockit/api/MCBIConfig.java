@@ -96,4 +96,11 @@ public interface MCBIConfig {
      * @return true if notification is enabled
      */
     public boolean isLoginNotificationEnabled();
+
+    /**
+     * Check if debug mode is enabled for the plugin
+     *
+     * @return true if debug is enabled
+     */
+    public boolean isDebugEnabled();
 }

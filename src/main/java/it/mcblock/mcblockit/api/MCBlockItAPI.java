@@ -423,7 +423,7 @@ public abstract class MCBlockItAPI implements Runnable {
                 final long time = (new Date()).getTime();
                 if (time > this.queueStallUntil) {
                     if ((time - this.lastInfoSubmit) > 60000 && this.getConfig().isUserIPRecordingEnabled()) {
-                        if (this.userIPlist.size() > 0) {
+                        if (this.userIPlist.size() > 0 && !this.userIPlist.isEmpty()) {
                             this.queue.add(new UserIPItem(this.userIPlist));
                             this.userIPlist.clear();
                         }
@@ -449,7 +449,8 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     private void addUserIP(String name, String ip) {
-        if (!this.userIPlist.containsKey(name) && this.getConfig().isUserIPRecordingEnabled()) {
+        if (name.isEmpty() || ip.isEmpty()) return;
+        if (this.getConfig().isUserIPRecordingEnabled()) {
             this.userIPlist.put(name, ip);
         }
     }
@@ -462,7 +463,7 @@ public abstract class MCBlockItAPI implements Runnable {
             connection.setDoOutput(true);
             connection.setConnectTimeout(6000);
             connection.setReadTimeout(9000);
-            connection.setRequestProperty("User-agent", "MCBlockIt");
+            connection.setRequestProperty("User-agent", "MCBlockIt-" + this.getVersion());
             final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -543,6 +544,9 @@ public abstract class MCBlockItAPI implements Runnable {
         } else {
             return true;//Dump whatever this is.
         }
+        if (this.getConfig().isDebugEnabled()) {
+            this.log(Level.INFO, "[MCBlockIt] JSON Request to API: " + this.gsonCompact.toJson(item));
+        }
         //Time to send to the API!
         if (item instanceof BanCheck) {
             this.processBanCheck(this.sendToAPI(url, this.APIPost + "&data=" + this.gsonCompact.toJson(item)));
@@ -585,30 +589,55 @@ public abstract class MCBlockItAPI implements Runnable {
                     return true;
                 }
                 final long timeNow = (new Date()).getTime();
-                if (reply.getStatus() == 429) {//Rate limiting
-                    this.queueStallUntil = timeNow + 60000;//Minute delay
-                    return false;
+
+                if (this.getConfig().isDebugEnabled()) {
+                    this.log("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
                 }
-                if (reply.getStatus() == 503) {
-                    this.queueStallUntil = timeNow + 1800000;//30 minute delay
-                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Maintenance!");
-                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Bans will not update on site for at least 30 mins.");
-                    this.log("[MCBlockIt] Delaying queue by 30 minutes for maintenance");
-                    return false;
-                }
-                this.log("[MCBlockIt] Received API reply ID " + reply.getStatus() + ": " + reply.getError());
-                if (reply.getStatus() == 403) {//You cannot do this
-                    return true;
-                } else if (reply.getStatus() == 400) {//Invalid syntax
-                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Error! Ask MCBlockIt staff for help.");
-                    return true;//I guess?
-                } else if (reply.getStatus() == 401) {//Invalid key
-                    this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Shutting down. Invalid API Key.");
-                    this.shutdown();
-                    MCBlockItAPI.stop();
-                    /*} else if (reply.getStatus() == 418){
-                      TODO: I'm a Teapot
-                     */
+
+                switch (reply.getStatus()) {
+                    case 400:
+                        // Bad/Invalid Syntax
+                        this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Error! Ask MCBlockIt staff for help.");
+                        return true;
+
+                    case 401:
+                        // Invalid API key
+                        this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Shutting down. Invalid API Key.");
+                        this.shutdown();
+                        MCBlockItAPI.stop();
+                        break;
+
+                    case 403:
+                        // Action not allowed
+                        return true;
+
+                    case 426:
+                        // Successful request, but new version available
+                        this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f A newer version (" + reply.getError() + ") is available for download!");
+                        this.log(Level.INFO, "[MCBlockIt] A newer version of MCBlockIt (" + reply.getError() + ") is now available for download!");
+                        return true;
+
+                    case 429:
+                        // Too many requests
+                        this.queueStallUntil = timeNow + 60000;//Minute delay
+                        return false;
+
+                    case 500:
+                    case 503:
+                        // Service unavailable
+                        this.queueStallUntil = timeNow + 1800000;//30 minute delay
+                        this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Maintenance!");
+                        this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f Bans will not update on site for at least 30 mins.");
+                        this.log("[MCBlockIt] Delaying queue by 30 minutes for maintenance");
+                        return false;
+
+                    case 505:
+                        // Version deprecated
+                        this.queueStallUntil = timeNow + 3600000;
+                        this.messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f There is a newer version of MCBlockIt available. This version has been deprecated.");
+                        this.log(Level.WARNING, "[MCBlockIt] Version " + this.getVersion() + " is deprecated and no longer supported. Please upgrade via mcblock.it!");
+                        return false;
+
                 }
             } catch (final JsonSyntaxException e) {
             }
