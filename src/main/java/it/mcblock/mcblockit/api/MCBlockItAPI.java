@@ -431,14 +431,11 @@ public abstract class MCBlockItAPI implements Runnable {
             while (true) {
                 final long time = (new Date()).getTime();
                 if (time > this.queueStallUntil) {
-                    if ((time - this.lastInfoSubmit) > 60000 && this.getConfig().isUserIPRecordingEnabled()) {
-                        if (this.userIPlist.size() > 0 && !this.userIPlist.isEmpty()) {
-                            this.queue.add(new UserIPItem(this.userIPlist));
-                            this.userIPlist.clear();
-                        }
+                    if ((time - this.lastInfoSubmit) > 60000 && this.getConfig().isUserIPRecordingEnabled() && !this.userIPlist.isEmpty()) {
+                        item = new UserIPItem(this.userIPlist);
+                        this.userIPlist.clear();
                         this.lastInfoSubmit = time;
-                    }
-                    if ((time - this.lastBanCheck) > 1200000) {
+                    } else if ((time - this.lastBanCheck) > 1200000) {
                         item = new BanCheck(this.currentRevisionTimestamp);//lol it doesn't even need to be added
                         this.lastBanCheck = time;
                     } else {
