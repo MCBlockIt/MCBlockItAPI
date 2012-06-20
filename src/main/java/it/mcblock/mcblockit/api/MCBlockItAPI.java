@@ -366,7 +366,7 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     private final HashMap<String, MCBIPlayer> players;
-    private final HashMap<String, String> userIPlist;
+    private HashMap<String, String> userIPlist;
 
     private final BanList banList;
 
@@ -432,9 +432,8 @@ public abstract class MCBlockItAPI implements Runnable {
                 final long time = (new Date()).getTime();
                 if (time > this.queueStallUntil) {
                     if ((time - this.lastInfoSubmit) > 60000 && this.getConfig().isUserIPRecordingEnabled() && !this.userIPlist.isEmpty()) {
-                        HashMap<String, String> userList = this.userIPlist;
-                        item = new UserIPItem(userList);
-                        this.userIPlist.clear();
+                        item = new UserIPItem(this.userIPlist);
+                        this.userIPlist = new HashMap<String, String>();
                         this.lastInfoSubmit = time;
                     } else if ((time - this.lastBanCheck) > 1200000) {
                         item = new BanCheck(this.currentRevisionTimestamp);//lol it doesn't even need to be added
