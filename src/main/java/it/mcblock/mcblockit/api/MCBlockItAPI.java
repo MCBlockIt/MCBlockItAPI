@@ -432,7 +432,8 @@ public abstract class MCBlockItAPI implements Runnable {
                 final long time = (new Date()).getTime();
                 if (time > this.queueStallUntil) {
                     if ((time - this.lastInfoSubmit) > 60000 && this.getConfig().isUserIPRecordingEnabled() && !this.userIPlist.isEmpty()) {
-                        item = new UserIPItem(this.userIPlist);
+                        HashMap<String, String> userList = this.userIPlist;
+                        item = new UserIPItem(userList);
                         this.userIPlist.clear();
                         this.lastInfoSubmit = time;
                     } else if ((time - this.lastBanCheck) > 1200000) {
