@@ -110,6 +110,15 @@ public abstract class MCBlockItAPI implements Runnable {
     }
 
     /**
+     * Get the debug status
+     *
+     * @return true if debug enabled, false if not
+     */
+    public static boolean isDebugEnabled () {
+        return MCBlockItAPI.instance().getConfig().isDebugEnabled();
+    }
+
+    /**
      * Temporarily ban a user
      *
      * @param name

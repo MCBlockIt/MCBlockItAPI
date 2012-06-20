@@ -59,6 +59,9 @@ public class Queue extends PriorityQueue<QueueItem> {
         synchronized (this) {
             success = super.add(item);
         }
+        if (MCBlockItAPI.isDebugEnabled() && success) {
+            MCBlockItAPI.logAdd(Level.INFO, "[MCBlockIt] New item added to queue: " + (new Gson()).toJson(item));
+        }
         this.update();
         return success;
     }
