@@ -28,7 +28,7 @@ public class UserIPItem extends QueueItem {
 
     private final HashMap<String, String> userIPList;
 
-    public UserIPItem (HashMap<String, String> userIPList) {
-        this.userIPList = userIPList;
+    public UserIPItem (HashMap<String, String> list) {
+        this.userIPList = list;
     }
 }
