@@ -169,7 +169,7 @@ public abstract class MCBlockItAPI implements Runnable {
         }
         MCBlockItAPI.instance().banList.addTempBan(name, timestamp + calcTime);
         MCBlockItAPI.instance().messageAdmins(Utils.COLOR_CHAR + "c[MCBlockIt]" + Utils.COLOR_CHAR + "f " + name + " has been temporarily banned [" + goodTime + " " + (goodTime != 1 ? timePhrase + "s" : timePhrase) + " (" + admin + ")]");
-        MCBlockItAPI.instance().log(Level.INFO, "[MCBlockIt] " + admin + " has temporarily banned " + name + " for " + calcTime + " " + (goodTime != 1 ? timePhrase + "s" : timePhrase));
+        MCBlockItAPI.instance().log(Level.INFO, "[MCBlockIt] " + admin + " has temporarily banned " + name + " for " + goodTime + " " + (goodTime != 1 ? timePhrase + "s" : timePhrase));
         return true;
     }
 
